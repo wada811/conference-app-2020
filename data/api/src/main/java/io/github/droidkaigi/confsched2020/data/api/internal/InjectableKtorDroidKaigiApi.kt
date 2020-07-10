@@ -1,10 +1,8 @@
 package io.github.droidkaigi.confsched2020.data.api.internal
 
 import io.ktor.client.HttpClient
-import javax.inject.Inject
-import javax.inject.Named
 
-internal class InjectableKtorDroidKaigiApi @Inject constructor(
+internal class InjectableKtorDroidKaigiApi(
     httpClient: HttpClient,
-    @Named("apiEndpoint") apiEndpoint: String
+    apiEndpoint: String
 ) : KtorDroidKaigiApi(httpClient, apiEndpoint, null)
