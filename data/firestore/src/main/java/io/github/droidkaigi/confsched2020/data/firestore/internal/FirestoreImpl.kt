@@ -23,10 +23,9 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import timber.log.debug
-import javax.inject.Inject
 import kotlin.math.floor
 
-internal class FirestoreImpl @Inject constructor() : Firestore {
+internal class FirestoreImpl : Firestore {
 
     override fun getFavoriteSessionIds(): Flow<List<String>> {
         val setupFavorites = flow {

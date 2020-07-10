@@ -29,8 +29,7 @@ kotlin {
                 implementation Dep.Firebase.firestoreKtx
                 implementation Dep.AndroidX.lifecycleLiveData
 
-                implementation Dep.Dagger.core
-                implementation Dep.Dagger.androidSupport
+                implementation Dep.DependencyProperty.dependencyProperty
 
             }
         }
@@ -59,8 +58,6 @@ kotlin {
 }
 
 dependencies {
-    kapt Dep.Dagger.compiler
-    kapt Dep.Dagger.androidProcessor
 }
 
 
