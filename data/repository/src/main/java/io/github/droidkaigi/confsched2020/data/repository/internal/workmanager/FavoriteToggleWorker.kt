@@ -1,22 +1,24 @@
 package io.github.droidkaigi.confsched2020.data.repository.internal.workmanager
 
+import android.app.Application
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import io.github.droidkaigi.confsched2020.di.AppComponentHolder
+import com.wada811.dependencyproperty.dependency
+import io.github.droidkaigi.confsched2020.data.repository.di.RepositoryModule
 import io.github.droidkaigi.confsched2020.model.SessionId
+import io.github.droidkaigi.confsched2020.model.repository.SessionRepository
 import kotlinx.coroutines.withTimeout
 
 internal class FavoriteToggleWorker(
-    private val appContext: Context,
+    appContext: Context,
     private val workerParams: WorkerParameters
 ) : CoroutineWorker(appContext, workerParams) {
+    private val sessionRepository by (applicationContext as Application).dependency<RepositoryModule, SessionRepository> { it.sessionRepository }
     override suspend fun doWork(): Result {
         if (runAttemptCount > 0) {
             return Result.failure()
         }
-        val appComponentHolder = appContext as? AppComponentHolder ?: return Result.failure()
-        val sessionRepository = appComponentHolder.appComponent.sessionRepository()
         val id = workerParams.inputData.getString(INPUT_SESSION_ID_KEY)
         id ?: return Result.failure()
         withTimeout(3000) {

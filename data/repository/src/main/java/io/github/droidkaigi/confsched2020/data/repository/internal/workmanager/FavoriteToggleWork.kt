@@ -11,12 +11,11 @@ import androidx.work.WorkManager
 import androidx.work.await
 import io.github.droidkaigi.confsched2020.model.AppError
 import io.github.droidkaigi.confsched2020.model.SessionId
-import javax.inject.Inject
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlinx.coroutines.suspendCancellableCoroutine
 
-internal class FavoriteToggleWork @Inject constructor(
+internal class FavoriteToggleWork(
     context: Context
 ) {
     private val workManager = WorkManager.getInstance(context)

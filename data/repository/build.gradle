@@ -33,8 +33,7 @@ kotlin {
                 implementation Dep.AndroidX.lifecycleLiveData
                 implementation Dep.AndroidX.Work.runtimeKtx
 
-                implementation Dep.Dagger.core
-                implementation Dep.Dagger.androidSupport
+                implementation Dep.DependencyProperty.dependencyProperty
             }
         }
         commonTest.dependencies {
@@ -54,8 +53,7 @@ kotlin {
 }
 
 dependencies {
-    kapt Dep.Dagger.compiler
-    kapt Dep.Dagger.androidProcessor
+    implementation Dep.DependencyProperty.dependencyProperty
 }
 
 configurations {

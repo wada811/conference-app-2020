@@ -8,11 +8,10 @@ import io.github.droidkaigi.confsched2020.model.LocaledString
 import io.github.droidkaigi.confsched2020.model.Sponsor
 import io.github.droidkaigi.confsched2020.model.SponsorCategory
 import io.github.droidkaigi.confsched2020.model.repository.SponsorRepository
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class DataSponsorRepository @Inject constructor(
+class DataSponsorRepository(
     private val api: DroidKaigiApi,
     private val sponsorDatabase: SponsorDatabase
 ) : SponsorRepository {

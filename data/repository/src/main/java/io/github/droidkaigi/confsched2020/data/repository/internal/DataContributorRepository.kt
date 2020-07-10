@@ -5,11 +5,10 @@ import io.github.droidkaigi.confsched2020.data.db.ContributorDatabase
 import io.github.droidkaigi.confsched2020.data.db.entity.ContributorEntity
 import io.github.droidkaigi.confsched2020.model.Contributor
 import io.github.droidkaigi.confsched2020.model.repository.ContributorRepository
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class DataContributorRepository @Inject constructor(
+class DataContributorRepository(
     private val api: DroidKaigiApi,
     private val contributorDatabase: ContributorDatabase
 ) : ContributorRepository {

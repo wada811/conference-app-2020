@@ -25,9 +25,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import timber.log.Timber
 import timber.log.debug
-import javax.inject.Inject
 
-internal class DataSessionRepository @Inject constructor(
+internal class DataSessionRepository(
     private val droidKaigiApi: DroidKaigiApi,
     private val googleFormApi: GoogleFormApi,
     private val sessionDatabase: SessionDatabase,
