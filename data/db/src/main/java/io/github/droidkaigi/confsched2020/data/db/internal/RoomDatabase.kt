@@ -36,18 +36,18 @@ import io.github.droidkaigi.confsched2020.data.db.internal.entity.mapper.toSpons
 import io.github.droidkaigi.confsched2020.data.db.internal.entity.mapper.toStaffEntities
 import io.github.droidkaigi.confsched2020.model.SessionFeedback
 import kotlinx.coroutines.flow.Flow
-import javax.inject.Inject
 
-internal class RoomDatabase @Inject constructor(
+internal class RoomDatabase(
     private val cacheDatabase: CacheDatabase,
-    private val sessionDao: SessionDao,
-    private val speakerDao: SpeakerDao,
-    private val sessionSpeakerJoinDao: SessionSpeakerJoinDao,
-    private val sessionFeedbackDao: SessionFeedbackDao,
-    private val sponsorDao: SponsorDao,
-    private val announcementDao: AnnouncementDao,
-    private val staffDao: StaffDao,
-    private val contributorDao: ContributorDao
+    private val sessionFeedbackDatabase: SessionFeedbackDatabase,
+    private val sessionDao: SessionDao = cacheDatabase.sessionDao(),
+    private val speakerDao: SpeakerDao = cacheDatabase.speakerDao(),
+    private val sessionSpeakerJoinDao: SessionSpeakerJoinDao = cacheDatabase.sessionSpeakerJoinDao(),
+    private val sessionFeedbackDao: SessionFeedbackDao = sessionFeedbackDatabase.sessionFeedbackDao(),
+    private val sponsorDao: SponsorDao = cacheDatabase.sponsorDao(),
+    private val announcementDao: AnnouncementDao = cacheDatabase.announcementDao(),
+    private val staffDao: StaffDao = cacheDatabase.staffDao(),
+    private val contributorDao: ContributorDao = cacheDatabase.contributorDao()
 ) : SessionDatabase,
     SponsorDatabase,
     AnnouncementDatabase,

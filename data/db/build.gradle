@@ -26,6 +26,7 @@ kotlin {
         commonMain.dependencies {
             implementation Dep.Kotlin.stdlibCommon
             implementation project(":model")
+            implementation project(":data:api")
             implementation Dep.Kotlin.coroutinesCommon
         }
         androidMain {
@@ -38,8 +39,7 @@ kotlin {
 
                 implementation Dep.AndroidX.Room.runtime
                 implementation Dep.AndroidX.Room.coroutine
-                implementation Dep.Dagger.core
-                implementation Dep.Dagger.androidSupport
+                implementation Dep.DependencyProperty.dependencyProperty
             }
         }
         commonTest.dependencies {
@@ -61,8 +61,6 @@ kotlin {
 dependencies {
     implementation project(":data:api")
     kapt Dep.AndroidX.Room.compiler
-    kapt Dep.Dagger.compiler
-    kapt Dep.Dagger.androidProcessor
 }
 
 configurations {
