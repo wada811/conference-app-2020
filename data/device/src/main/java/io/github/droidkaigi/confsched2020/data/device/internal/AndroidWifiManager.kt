@@ -1,16 +1,15 @@
 package io.github.droidkaigi.confsched2020.data.device.internal
 
 import android.content.Context
-import android.net.wifi.WifiConfiguration as SdkWifiConfiguration
-import android.net.wifi.WifiManager as SdkWifiManager
 import androidx.core.content.ContextCompat
 import io.github.droidkaigi.confsched2020.data.device.WifiManager
 import io.github.droidkaigi.confsched2020.model.WifiConfiguration
-import javax.inject.Inject
 import timber.log.Timber
 import timber.log.debug
+import android.net.wifi.WifiConfiguration as SdkWifiConfiguration
+import android.net.wifi.WifiManager as SdkWifiManager
 
-internal class AndroidWifiManager @Inject constructor(
+internal class AndroidWifiManager(
     context: Context
 ) : WifiManager {
     private val wifiManager: SdkWifiManager =

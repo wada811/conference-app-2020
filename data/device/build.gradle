@@ -21,8 +21,7 @@ kotlin {
             dependencies {
                 implementation Dep.Kotlin.stdlibJvm
                 implementation Dep.Kotlin.coroutines
-                implementation Dep.Dagger.core
-                implementation Dep.Dagger.androidSupport
+                implementation Dep.DependencyProperty.dependencyProperty
                 implementation Dep.Timber.android
             }
         }
@@ -43,8 +42,7 @@ kotlin {
 }
 
 dependencies {
-    kapt Dep.Dagger.compiler
-    kapt Dep.Dagger.androidProcessor
+    implementation Dep.DependencyProperty.dependencyProperty
 }
 
 
