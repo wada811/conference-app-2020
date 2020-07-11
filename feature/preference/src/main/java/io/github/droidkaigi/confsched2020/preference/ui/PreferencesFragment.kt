@@ -4,34 +4,19 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import dagger.Component
-import dagger.Module
-import dagger.Provides
-import io.github.droidkaigi.confsched2020.App
-import io.github.droidkaigi.confsched2020.R as MainR
-import io.github.droidkaigi.confsched2020.di.AppComponent
-import io.github.droidkaigi.confsched2020.di.PageScope
-import io.github.droidkaigi.confsched2020.ext.assistedViewModels
 import io.github.droidkaigi.confsched2020.model.NightMode
 import io.github.droidkaigi.confsched2020.preference.R
-import io.github.droidkaigi.confsched2020.preference.ui.di.PreferenceAssistedInjectModule
 import io.github.droidkaigi.confsched2020.preference.ui.viewmodel.PreferenceViewModel
-import javax.inject.Inject
-import javax.inject.Provider
+import io.github.droidkaigi.confsched2020.R as MainR
 
 class PreferencesFragment : PreferenceFragmentCompat() {
 
-    @Inject
-    lateinit var preferenceModelFactory: Provider<PreferenceViewModel>
-    private val preferenceViewModel by assistedViewModels {
-        preferenceModelFactory.get()
-    }
+    private val preferenceViewModel: PreferenceViewModel by viewModels()
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.setting, rootKey)
@@ -39,12 +24,6 @@ class PreferencesFragment : PreferenceFragmentCompat() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val appComponent = (requireContext().applicationContext as App).appComponent
-        val component = DaggerPreferenceComponent.factory()
-            .create(appComponent, PreferenceModule(this))
-        component.inject(this)
-
         preferenceManager?.findPreference<ListPreference>(DARK_THEME_KEY)?.also {
             preferenceViewModel.setNightMode(it.value.toNightMode())
             it.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
@@ -82,32 +61,4 @@ class PreferencesFragment : PreferenceFragmentCompat() {
     companion object {
         private const val DARK_THEME_KEY = "darkTheme"
     }
-}
-
-@Module
-class PreferenceModule(private val fragment: PreferencesFragment) {
-    @PageScope @Provides
-    fun providesLifecycleOwnerLiveData(): LiveData<LifecycleOwner> {
-        return fragment.viewLifecycleOwnerLiveData
-    }
-}
-
-@PageScope
-@Component(
-    modules = [
-        PreferenceModule::class,
-        PreferenceAssistedInjectModule::class
-    ],
-    dependencies = [AppComponent::class]
-)
-interface PreferenceComponent {
-    @Component.Factory
-    interface Factory {
-        fun create(
-            appComponent: AppComponent,
-            preferenceModule: PreferenceModule
-        ): PreferenceComponent
-    }
-
-    fun inject(fragment: PreferencesFragment)
 }

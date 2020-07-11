@@ -5,9 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.github.droidkaigi.confsched2020.ext.combine
 import io.github.droidkaigi.confsched2020.model.NightMode
-import javax.inject.Inject
 
-class PreferenceViewModel @Inject constructor() : ViewModel() {
+class PreferenceViewModel : ViewModel() {
 
     data class UiModel(
         val nightMode: NightMode
