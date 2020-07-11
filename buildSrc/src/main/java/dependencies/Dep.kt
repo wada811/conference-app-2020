@@ -210,4 +210,8 @@ object Dep {
     object Store {
         val store = "com.dropbox.mobile.store:store4:4.0.0-alpha01"
     }
+
+    object DependencyProperty {
+        val dependencyProperty = "com.github.wada811:DependencyProperty:3caa9ffde5"
+    }
 }
