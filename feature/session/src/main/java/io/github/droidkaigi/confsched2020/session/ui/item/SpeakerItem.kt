@@ -14,8 +14,6 @@ import coil.Coil
 import coil.api.load
 import coil.request.RequestDisposable
 import coil.transform.CircleCropTransformation
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
 import com.xwray.groupie.Item
 import com.xwray.groupie.databinding.BindableItem
 import com.xwray.groupie.databinding.GroupieViewHolder
@@ -28,9 +26,9 @@ import io.github.droidkaigi.confsched2020.ui.ProfilePlaceholderCreator
 import io.github.droidkaigi.confsched2020.util.lazyWithParam
 import java.util.regex.Pattern
 
-class SpeakerItem @AssistedInject constructor(
-    @Assisted val speaker: Speaker,
-    @Assisted val searchQuery: String?,
+class SpeakerItem(
+    val speaker: Speaker,
+    val searchQuery: String?,
     private val lifecycleOwnerLiveData: LiveData<LifecycleOwner>
 ) : BindableItem<ItemSpeakerBinding>(speaker.id.hashCode().toLong()) {
 
@@ -54,7 +52,8 @@ class SpeakerItem @AssistedInject constructor(
                 actionSessionToSpeaker(
                     speaker.id,
                     TRANSITION_NAME_SUFFIX,
-                    searchQuery),
+                    searchQuery
+                ),
                 extras
             )
         }
@@ -96,19 +95,12 @@ class SpeakerItem @AssistedInject constructor(
                 BackgroundColorSpan(highlightColor),
                 matcher.start(),
                 matcher.end(),
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
         }
         text = spannableStringBuilder
     }
 
     override fun hasSameContentAs(other: Item<*>): Boolean =
         speaker == (other as? SpeakerItem)?.speaker
-
-    @AssistedInject.Factory
-    interface Factory {
-        fun create(
-            speaker: Speaker,
-            searchQuery: String? = null
-        ): SpeakerItem
-    }
 }

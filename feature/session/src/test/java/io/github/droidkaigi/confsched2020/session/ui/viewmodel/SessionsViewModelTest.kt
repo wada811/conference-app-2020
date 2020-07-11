@@ -1,6 +1,7 @@
 package io.github.droidkaigi.confsched2020.session.ui.viewmodel
 
 import com.jraska.livedata.test
+import io.github.droidkaigi.confsched2020.data.repository.di.RepositoryModule
 import io.github.droidkaigi.confsched2020.model.Category
 import io.github.droidkaigi.confsched2020.model.Filters
 import io.github.droidkaigi.confsched2020.model.Lang
@@ -12,8 +13,10 @@ import io.github.droidkaigi.confsched2020.model.Session
 import io.github.droidkaigi.confsched2020.model.SessionList
 import io.github.droidkaigi.confsched2020.model.SessionPage
 import io.github.droidkaigi.confsched2020.model.repository.SessionRepository
+import io.github.droidkaigi.confsched2020.session.di.SessionModule
 import io.github.droidkaigi.confsched2020.session.util.SessionAlarm
 import io.github.droidkaigi.confsched2020.widget.component.MockkRule
+import io.github.droidkaigi.confsched2020.widget.component.TestApplication
 import io.github.droidkaigi.confsched2020.widget.component.ViewModelTestRule
 import io.kotlintest.shouldBe
 import io.mockk.coEvery
@@ -26,17 +29,23 @@ import org.junit.Test
 class SessionsViewModelTest {
     @get:Rule val viewModelTestRule = ViewModelTestRule()
     @get:Rule val mockkRule = MockkRule(this)
+
+    @MockK(relaxed = true)
+    lateinit var repositoryModule: RepositoryModule
+
     @MockK(relaxed = true) lateinit var sessionRepository: SessionRepository
+
+    @MockK(relaxed = true)
+    lateinit var sessionModule: SessionModule
+
     @MockK lateinit var sessionAlarm: SessionAlarm
 
     @Test
     fun load() {
+        coEvery { repositoryModule.sessionRepository } returns sessionRepository
         coEvery { sessionRepository.sessionContents() } returns flowOf(Dummies.sessionContents)
         coEvery { sessionRepository.refresh() }
-        val sessionsViewModel = SessionsViewModel(
-            sessionRepository = sessionRepository,
-            sessionAlarm = sessionAlarm
-        )
+        val sessionsViewModel = SessionsViewModel(TestApplication(repositoryModule))
 
         val testObserver = sessionsViewModel
             .uiModel
@@ -54,9 +63,11 @@ class SessionsViewModelTest {
                     )
                 )
             )
-            favoritedSessions shouldBe SessionList(listOf<Session>(
-                Dummies.serviceSession
-            ))
+            favoritedSessions shouldBe SessionList(
+                listOf<Session>(
+                    Dummies.serviceSession
+                )
+            )
             filters shouldBe Filters()
             allFilters shouldBe Filters(
                 rooms = Dummies.sessionContents.rooms.toSet(),
@@ -70,13 +81,12 @@ class SessionsViewModelTest {
 
     @Test
     fun favorite() {
+        coEvery { repositoryModule.sessionRepository } returns sessionRepository
         coEvery { sessionRepository.sessionContents() } returns flowOf(Dummies.sessionContents)
         coEvery { sessionRepository.toggleFavorite(Dummies.speachSession1.id) } returns Unit
+        coEvery { sessionModule.sessionAlarm } returns sessionAlarm
 
-        val sessionsViewModel = SessionsViewModel(
-            sessionRepository = sessionRepository,
-            sessionAlarm = sessionAlarm
-        )
+        val sessionsViewModel = SessionsViewModel(TestApplication(repositoryModule, sessionModule))
 
         val testObserver = sessionsViewModel
             .uiModel
@@ -116,9 +126,11 @@ class SessionsViewModelTest {
         valueHistory[2].apply {
             isLoading shouldBe true
             error shouldBe null
-            favoritedSessions shouldBe SessionList(listOf<Session>(
-                Dummies.serviceSession
-            ))
+            favoritedSessions shouldBe SessionList(
+                listOf<Session>(
+                    Dummies.serviceSession
+                )
+            )
             dayToSessionsMap shouldBe dayToSessionsMap
             filters shouldBe filters
             allFilters shouldBe allFilters
@@ -126,9 +138,11 @@ class SessionsViewModelTest {
         valueHistory[3].apply {
             isLoading shouldBe false
             error shouldBe null
-            favoritedSessions shouldBe SessionList(listOf<Session>(
-                Dummies.serviceSession
-            ))
+            favoritedSessions shouldBe SessionList(
+                listOf<Session>(
+                    Dummies.serviceSession
+                )
+            )
             dayToSessionsMap shouldBe dayToSessionsMap
             filters shouldBe filters
             allFilters shouldBe allFilters
@@ -136,9 +150,11 @@ class SessionsViewModelTest {
         valueHistory[4].apply {
             isLoading shouldBe true
             error shouldBe null
-            favoritedSessions shouldBe SessionList(listOf<Session>(
-                Dummies.serviceSession
-            ))
+            favoritedSessions shouldBe SessionList(
+                listOf<Session>(
+                    Dummies.serviceSession
+                )
+            )
             dayToSessionsMap shouldBe dayToSessionsMap
             filters shouldBe filters
             allFilters shouldBe allFilters
@@ -146,9 +162,11 @@ class SessionsViewModelTest {
         valueHistory[5].apply {
             isLoading shouldBe false
             error shouldBe null
-            favoritedSessions shouldBe SessionList(listOf<Session>(
-                Dummies.serviceSession
-            ))
+            favoritedSessions shouldBe SessionList(
+                listOf<Session>(
+                    Dummies.serviceSession
+                )
+            )
             dayToSessionsMap shouldBe dayToSessionsMap
             filters shouldBe filters
             allFilters shouldBe allFilters
@@ -157,12 +175,10 @@ class SessionsViewModelTest {
 
     @Test
     fun filterChanged_room_true() {
+        coEvery { repositoryModule.sessionRepository } returns sessionRepository
         coEvery { sessionRepository.sessionContents() } returns flowOf(Dummies.sessionContents)
 
-        val sessionsViewModel = SessionsViewModel(
-            sessionRepository = sessionRepository,
-            sessionAlarm = sessionAlarm
-        )
+        val sessionsViewModel = SessionsViewModel(TestApplication(repositoryModule))
 
         val testObserver = sessionsViewModel
             .uiModel
@@ -187,12 +203,10 @@ class SessionsViewModelTest {
 
     @Test
     fun filterChanged_room_false() {
+        coEvery { repositoryModule.sessionRepository } returns sessionRepository
         coEvery { sessionRepository.sessionContents() } returns flowOf(Dummies.sessionContents)
 
-        val sessionsViewModel = SessionsViewModel(
-            sessionRepository = sessionRepository,
-            sessionAlarm = sessionAlarm
-        )
+        val sessionsViewModel = SessionsViewModel(TestApplication(repositoryModule))
         // turn on once for testing.
         val room1 = Room(1, LocaledString("JA App bar", "EN App bar"), 1)
         val room2 = Room(2, LocaledString("JA App room", "EN App room"), 2)
@@ -223,12 +237,10 @@ class SessionsViewModelTest {
 
     @Test
     fun filterChanged_category_true() {
+        coEvery { repositoryModule.sessionRepository } returns sessionRepository
         coEvery { sessionRepository.sessionContents() } returns flowOf(Dummies.sessionContents)
 
-        val sessionsViewModel = SessionsViewModel(
-            sessionRepository = sessionRepository,
-            sessionAlarm = sessionAlarm
-        )
+        val sessionsViewModel = SessionsViewModel(TestApplication(repositoryModule))
 
         val testObserver = sessionsViewModel
             .uiModel
@@ -257,12 +269,10 @@ class SessionsViewModelTest {
 
     @Test
     fun filterChanged_category_false() {
+        coEvery { repositoryModule.sessionRepository } returns sessionRepository
         coEvery { sessionRepository.sessionContents() } returns flowOf(Dummies.sessionContents)
 
-        val sessionsViewModel = SessionsViewModel(
-            sessionRepository = sessionRepository,
-            sessionAlarm = sessionAlarm
-        )
+        val sessionsViewModel = SessionsViewModel(TestApplication(repositoryModule))
         // turn on once for testing.
         val category1 = Category(
             id = 0,
@@ -299,12 +309,10 @@ class SessionsViewModelTest {
 
     @Test
     fun filterChanged_lang_true() {
+        coEvery { repositoryModule.sessionRepository } returns sessionRepository
         coEvery { sessionRepository.sessionContents() } returns flowOf(Dummies.sessionContents)
 
-        val sessionsViewModel = SessionsViewModel(
-            sessionRepository = sessionRepository,
-            sessionAlarm = sessionAlarm
-        )
+        val sessionsViewModel = SessionsViewModel(TestApplication(repositoryModule))
 
         val testObserver = sessionsViewModel
             .uiModel
@@ -329,12 +337,10 @@ class SessionsViewModelTest {
 
     @Test
     fun filterChanged_lang_false() {
+        coEvery { repositoryModule.sessionRepository } returns sessionRepository
         coEvery { sessionRepository.sessionContents() } returns flowOf(Dummies.sessionContents)
 
-        val sessionsViewModel = SessionsViewModel(
-            sessionRepository = sessionRepository,
-            sessionAlarm = sessionAlarm
-        )
+        val sessionsViewModel = SessionsViewModel(TestApplication(repositoryModule))
         // turn on once for testing.
         sessionsViewModel.filterChanged(Lang.JA, true)
         sessionsViewModel.filterChanged(Lang.EN, true)
@@ -365,12 +371,10 @@ class SessionsViewModelTest {
 
     @Test
     fun filterChanged_langSupport_true() {
+        coEvery { repositoryModule.sessionRepository } returns sessionRepository
         coEvery { sessionRepository.sessionContents() } returns flowOf(Dummies.sessionContents)
 
-        val sessionsViewModel = SessionsViewModel(
-            sessionRepository = sessionRepository,
-            sessionAlarm = sessionAlarm
-        )
+        val sessionsViewModel = SessionsViewModel(TestApplication(repositoryModule))
 
         val testObserver = sessionsViewModel
             .uiModel
@@ -395,12 +399,10 @@ class SessionsViewModelTest {
 
     @Test
     fun filterChanged_langSupport_false() {
+        coEvery { repositoryModule.sessionRepository } returns sessionRepository
         coEvery { sessionRepository.sessionContents() } returns flowOf(Dummies.sessionContents)
 
-        val sessionsViewModel = SessionsViewModel(
-            sessionRepository = sessionRepository,
-            sessionAlarm = sessionAlarm
-        )
+        val sessionsViewModel = SessionsViewModel(TestApplication(repositoryModule))
         // turn on once for testing.
         sessionsViewModel.filterChanged(LangSupport.INTERPRETATION, true)
 
@@ -428,12 +430,10 @@ class SessionsViewModelTest {
 
     @Test
     fun filterChanged_level_true() {
+        coEvery { repositoryModule.sessionRepository } returns sessionRepository
         coEvery { sessionRepository.sessionContents() } returns flowOf(Dummies.sessionContents)
 
-        val sessionsViewModel = SessionsViewModel(
-            sessionRepository = sessionRepository,
-            sessionAlarm = sessionAlarm
-        )
+        val sessionsViewModel = SessionsViewModel(TestApplication(repositoryModule))
 
         val testObserver = sessionsViewModel
             .uiModel
@@ -458,12 +458,10 @@ class SessionsViewModelTest {
 
     @Test
     fun filterChanged_level_false() {
+        coEvery { repositoryModule.sessionRepository } returns sessionRepository
         coEvery { sessionRepository.sessionContents() } returns flowOf(Dummies.sessionContents)
 
-        val sessionsViewModel = SessionsViewModel(
-            sessionRepository = sessionRepository,
-            sessionAlarm = sessionAlarm
-        )
+        val sessionsViewModel = SessionsViewModel(TestApplication(repositoryModule))
         // turn on once for testing.
         sessionsViewModel.filterChanged(Level.BEGINNER, true)
         sessionsViewModel.filterChanged(Level.INTERMEDIATE, true)
@@ -502,12 +500,10 @@ class SessionsViewModelTest {
 
     @Test
     fun resetFilters() {
+        coEvery { repositoryModule.sessionRepository } returns sessionRepository
         coEvery { sessionRepository.sessionContents() } returns flowOf(Dummies.sessionContents)
 
-        val sessionsViewModel = SessionsViewModel(
-            sessionRepository = sessionRepository,
-            sessionAlarm = sessionAlarm
-        )
+        val sessionsViewModel = SessionsViewModel(TestApplication(repositoryModule))
         sessionsViewModel.filterChanged(Level.BEGINNER, true)
         sessionsViewModel.filterChanged(LangSupport.INTERPRETATION, true)
         sessionsViewModel.filterChanged(Lang.JA, true)

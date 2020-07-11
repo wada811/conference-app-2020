@@ -20,8 +20,6 @@ import coil.Coil
 import coil.api.load
 import coil.request.RequestDisposable
 import coil.transform.CircleCropTransformation
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
 import com.xwray.groupie.Item
 import com.xwray.groupie.databinding.BindableItem
 import com.xwray.groupie.databinding.GroupieViewHolder
@@ -42,10 +40,10 @@ import io.github.droidkaigi.confsched2020.util.lazyWithParam
 import java.util.regex.Pattern
 import kotlin.math.max
 
-class SessionItem @AssistedInject constructor(
-    @Assisted private val session: Session,
-    @Assisted private val sessionsViewModel: SessionsViewModel,
-    @Assisted private val searchQuery: String?,
+class SessionItem(
+    private val session: Session,
+    private val sessionsViewModel: SessionsViewModel,
+    private val searchQuery: String? = null,
     private val lifecycleOwnerLiveData: LiveData<LifecycleOwner>
 ) : BindableItem<ItemSessionBinding>(session.id.hashCode().toLong()) {
 
@@ -147,42 +145,42 @@ class SessionItem @AssistedInject constructor(
                 size, (session as? SpeechSession)?.speakers.orEmpty().size
             )
             ).forEach { index ->
-            val existSpeakerView = getChildAt(index) as? ViewGroup
-            val speaker: Speaker? = (session as? SpeechSession)?.speakers?.getOrNull(index)
-            if (speaker == null) {
-                // Cache for performance
-                existSpeakerView?.isVisible = false
-                return@forEach
+                val existSpeakerView = getChildAt(index) as? ViewGroup
+                val speaker: Speaker? = (session as? SpeechSession)?.speakers?.getOrNull(index)
+                if (speaker == null) {
+                    // Cache for performance
+                    existSpeakerView?.isVisible = false
+                    return@forEach
+                }
+                val speakerView = if (existSpeakerView == null) {
+                    // NOTE: attachToRoot: true changes return value. https://stackoverflow.com/q/41491744/1474113
+                    val view = layoutInflater.get(context).inflate(
+                        R.layout.layout_speaker, this, false
+                    ) as ViewGroup
+                    addView(view)
+                    view
+                } else {
+                    existSpeakerView.isVisible = true
+                    existSpeakerView
+                }
+                val speakerNameView = speakerView.findViewById<TextView>(R.id.speaker)
+                val speakerImageView = speakerView.findViewById<ImageView>(R.id.speaker_image)
+                speakerImageView.transitionName = "${speaker.id}-$TRANSITION_NAME_SUFFIX"
+                speakerView.setOnClickListener {
+                    val extras = FragmentNavigatorExtras(
+                        speakerImageView to speakerImageView.transitionName
+                    )
+                    it.findNavController().navigate(
+                        actionSessionToSpeaker(
+                            speaker.id,
+                            TRANSITION_NAME_SUFFIX,
+                            null
+                        ),
+                        extras
+                    )
+                }
+                bindSpeakerData(speaker, speakerNameView, speakerImageView)
             }
-            val speakerView = if (existSpeakerView == null) {
-                // NOTE: attachToRoot: true changes return value. https://stackoverflow.com/q/41491744/1474113
-                val view = layoutInflater.get(context).inflate(
-                    R.layout.layout_speaker, this, false
-                ) as ViewGroup
-                addView(view)
-                view
-            } else {
-                existSpeakerView.isVisible = true
-                existSpeakerView
-            }
-            val speakerNameView = speakerView.findViewById<TextView>(R.id.speaker)
-            val speakerImageView = speakerView.findViewById<ImageView>(R.id.speaker_image)
-            speakerImageView.transitionName = "${speaker.id}-$TRANSITION_NAME_SUFFIX"
-            speakerView.setOnClickListener {
-                val extras = FragmentNavigatorExtras(
-                    speakerImageView to speakerImageView.transitionName
-                )
-                it.findNavController().navigate(
-                    actionSessionToSpeaker(
-                        speaker.id,
-                        TRANSITION_NAME_SUFFIX,
-                        null
-                    ),
-                    extras
-                )
-            }
-            bindSpeakerData(speaker, speakerNameView, speakerImageView)
-        }
     }
 
     private fun bindSpeakerData(
@@ -254,14 +252,5 @@ class SessionItem @AssistedInject constructor(
 
     private sealed class ItemPayload {
         data class FavoritePayload(val isFavorited: Boolean) : ItemPayload()
-    }
-
-    @AssistedInject.Factory
-    interface Factory {
-        fun create(
-            session: Session,
-            sessionsViewModel: SessionsViewModel,
-            searchQuery: String? = null
-        ): SessionItem
     }
 }

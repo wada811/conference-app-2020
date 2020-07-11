@@ -13,8 +13,6 @@ import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import coil.Coil
 import coil.api.load
 import coil.transform.CircleCropTransformation
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
 import com.xwray.groupie.Item
 import com.xwray.groupie.databinding.BindableItem
 import io.github.droidkaigi.confsched2020.ext.getThemeColor
@@ -24,14 +22,12 @@ import io.github.droidkaigi.confsched2020.session.databinding.ItemSpeakerDetailB
 import io.github.droidkaigi.confsched2020.ui.ProfilePlaceholderCreator
 import io.github.droidkaigi.confsched2020.util.lazyWithParam
 import java.util.regex.Pattern
-import javax.inject.Named
 
-class SpeakerDetailItem @AssistedInject constructor(
-    @Assisted val speaker: Speaker,
-    @Assisted @Named("transitionNameSuffix")
+class SpeakerDetailItem(
+    val speaker: Speaker,
     val transitionNameSuffix: String,
-    @Assisted val searchQuery: String?,
-    @Assisted val onImageLoadedCallback: () -> Unit,
+    val searchQuery: String?,
+    val onImageLoadedCallback: () -> Unit,
     private val lifecycleOwnerLiveData: LiveData<LifecycleOwner>
 ) : BindableItem<ItemSpeakerDetailBinding>(speaker.id.hashCode().toLong()) {
 
@@ -93,15 +89,5 @@ class SpeakerDetailItem @AssistedInject constructor(
             }
             text = spannableStringBuilder
         }
-    }
-
-    @AssistedInject.Factory
-    interface Factory {
-        fun create(
-            speaker: Speaker,
-            @Named("transitionNameSuffix") transitionNameSuffix: String,
-            searchQuery: String? = null,
-            onImageLoadedCallback: () -> Unit
-        ): SpeakerDetailItem
     }
 }

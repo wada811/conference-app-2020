@@ -5,9 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import io.github.droidkaigi.confsched2020.ext.requireValue
 import io.github.droidkaigi.confsched2020.model.ExpandFilterState
-import javax.inject.Inject
 
-class SessionTabViewModel @Inject constructor() : ViewModel() {
+class SessionTabViewModel : ViewModel() {
     data class UiModel(val expandFilterState: ExpandFilterState)
 
     private val mutableExpandFilter = MutableLiveData(ExpandFilterState.EXPANDED)

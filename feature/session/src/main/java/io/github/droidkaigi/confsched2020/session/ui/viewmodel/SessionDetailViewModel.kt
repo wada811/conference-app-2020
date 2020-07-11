@@ -1,12 +1,13 @@
 package io.github.droidkaigi.confsched2020.session.ui.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import com.wada811.dependencyproperty.dependency
+import io.github.droidkaigi.confsched2020.data.repository.di.RepositoryModule
 import io.github.droidkaigi.confsched2020.ext.combine
 import io.github.droidkaigi.confsched2020.ext.toAppError
 import io.github.droidkaigi.confsched2020.ext.toLoadingState
@@ -20,6 +21,7 @@ import io.github.droidkaigi.confsched2020.model.TextExpandState
 import io.github.droidkaigi.confsched2020.model.ThumbsUpCount
 import io.github.droidkaigi.confsched2020.model.firstErrorOrNull
 import io.github.droidkaigi.confsched2020.model.repository.SessionRepository
+import io.github.droidkaigi.confsched2020.session.ui.SessionDetailFragment
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.asFlow
@@ -30,11 +32,11 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import timber.log.debug
 
-class SessionDetailViewModel @AssistedInject constructor(
-    @Assisted private val sessionId: SessionId,
-    @Assisted private val searchQuery: String?,
-    private val sessionRepository: SessionRepository
-) : ViewModel() {
+class SessionDetailViewModel(application: Application) : AndroidViewModel(application) {
+    private val sessionId by dependency<SessionDetailFragment.SessionDetailFragmentArgsModule, SessionId> { it.navArgs.sessionId }
+    private val searchQuery by dependency<SessionDetailFragment.SessionDetailFragmentArgsModule, String?> { it.navArgs.searchQuery }
+    private val sessionRepository by dependency<RepositoryModule, SessionRepository> { it.sessionRepository }
+
     // UiModel definition
     data class UiModel(
         val isLoading: Boolean,
@@ -205,14 +207,6 @@ class SessionDetailViewModel @AssistedInject constructor(
                     incrementThumbsUpCountResultLiveData.value = ResultState.Error(e)
                 }
             }
-    }
-
-    @AssistedInject.Factory
-    interface Factory {
-        fun create(
-            sessionId: SessionId,
-            searchQuery: String? = null
-        ): SessionDetailViewModel
     }
 
     companion object {

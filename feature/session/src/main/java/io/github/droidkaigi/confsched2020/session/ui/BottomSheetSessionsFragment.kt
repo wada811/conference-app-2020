@@ -7,8 +7,7 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,12 +15,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionManager
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.databinding.GroupieViewHolder
-import dagger.Module
-import dagger.Provides
 import dev.chrisbanes.insetter.doOnApplyWindowInsets
-import io.github.droidkaigi.confsched2020.di.Injectable
-import io.github.droidkaigi.confsched2020.di.PageScope
-import io.github.droidkaigi.confsched2020.ext.assistedActivityViewModels
+import io.github.droidkaigi.confsched2020.ext.createViewModelLazy
 import io.github.droidkaigi.confsched2020.model.ExpandFilterState
 import io.github.droidkaigi.confsched2020.model.SessionPage
 import io.github.droidkaigi.confsched2020.session.R
@@ -33,33 +28,20 @@ import io.github.droidkaigi.confsched2020.session.ui.widget.SessionsItemDecorati
 import io.github.droidkaigi.confsched2020.system.ui.viewmodel.SystemViewModel
 import io.github.droidkaigi.confsched2020.ui.widget.BottomGestureSpace
 import kotlinx.coroutines.suspendCancellableCoroutine
-import javax.inject.Inject
-import javax.inject.Provider
 import kotlin.coroutines.resume
 
-class BottomSheetSessionsFragment : Fragment(R.layout.fragment_bottom_sheet_sessions), Injectable {
+class BottomSheetSessionsFragment : Fragment(R.layout.fragment_bottom_sheet_sessions) {
 
-    @Inject
-    lateinit var sessionsViewModelProvider: Provider<SessionsViewModel>
-    private val sessionsViewModel: SessionsViewModel by assistedActivityViewModels {
-        sessionsViewModelProvider.get()
-    }
-    @Inject
-    lateinit var sessionTabViewModelProvider: Provider<SessionTabViewModel>
-    private val sessionTabViewModel: SessionTabViewModel by assistedActivityViewModels({
-        args.page.title
-    }) {
-        sessionTabViewModelProvider.get()
-    }
+    private val sessionsViewModel: SessionsViewModel by activityViewModels()
+    private val sessionTabViewModel: SessionTabViewModel by createViewModelLazy(
+        SessionTabViewModel::class,
+        { args.page.title },
+        { requireActivity().viewModelStore },
+        { defaultViewModelProviderFactory }
+    )
 
-    @Inject
-    lateinit var systemViewModelProvider: Provider<SystemViewModel>
-    private val systemViewModel: SystemViewModel by assistedActivityViewModels {
-        systemViewModelProvider.get()
-    }
+    private val systemViewModel: SystemViewModel by activityViewModels()
 
-    @Inject
-    lateinit var sessionItemFactory: SessionItem.Factory
     private val args: BottomSheetSessionsFragmentArgs by lazy {
         BottomSheetSessionsFragmentArgs.fromBundle(arguments ?: Bundle())
     }
@@ -173,7 +155,7 @@ class BottomSheetSessionsFragment : Fragment(R.layout.fragment_bottom_sheet_sess
             binding.isFiltered = uiModel.filters.isFiltered()
             binding.filteredSessionCount.isVisible = uiModel.filters.isFiltered()
             groupAdapter.update(sessions.map {
-                sessionItemFactory.create(it, sessionsViewModel)
+                SessionItem(it, sessionsViewModel, null, viewLifecycleOwnerLiveData)
             })
             uiModel.error?.let {
                 systemViewModel.onError(it)
@@ -258,19 +240,6 @@ class BottomSheetSessionsFragment : Fragment(R.layout.fragment_bottom_sheet_sess
             return BottomSheetSessionsFragment().apply {
                 arguments = args.toBundle()
             }
-        }
-    }
-}
-
-@Module
-abstract class BottomSheetSessionsFragmentModule {
-    companion object {
-        @PageScope
-        @Provides
-        fun providesLifecycleOwnerLiveData(
-            mainBottomSheetSessionsFragment: BottomSheetSessionsFragment
-        ): LiveData<LifecycleOwner> {
-            return mainBottomSheetSessionsFragment.viewLifecycleOwnerLiveData
         }
     }
 }

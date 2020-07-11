@@ -3,17 +3,15 @@ package io.github.droidkaigi.confsched2020.session.ui.item
 import android.graphics.drawable.Drawable
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
 import com.xwray.groupie.databinding.BindableItem
 import io.github.droidkaigi.confsched2020.model.Session
 import io.github.droidkaigi.confsched2020.model.SpeechSession
 import io.github.droidkaigi.confsched2020.session.R
 import io.github.droidkaigi.confsched2020.session.databinding.ItemSessionDetailMaterialBinding
 
-class SessionDetailMaterialItem @AssistedInject constructor(
-    @Assisted private val session: Session,
-    @Assisted private val listener: Listener
+class SessionDetailMaterialItem(
+    private val session: Session,
+    private val listener: Listener
 ) : BindableItem<ItemSessionDetailMaterialBinding>(session.id.hashCode().toLong()) {
 
     interface Listener {
@@ -83,13 +81,5 @@ class SessionDetailMaterialItem @AssistedInject constructor(
         setCompoundDrawables(
             drawable, null, null, null
         )
-    }
-
-    @AssistedInject.Factory
-    interface Factory {
-        fun create(
-            session: Session,
-            listener: Listener
-        ): SessionDetailMaterialItem
     }
 }

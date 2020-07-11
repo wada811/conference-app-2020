@@ -9,8 +9,6 @@ import androidx.core.view.doOnPreDraw
 import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.google.android.material.chip.Chip
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
 import com.xwray.groupie.databinding.BindableItem
 import io.github.droidkaigi.confsched2020.ext.getThemeColor
 import io.github.droidkaigi.confsched2020.model.Session
@@ -24,12 +22,12 @@ import io.github.droidkaigi.confsched2020.session.ui.animation.pop
 import io.github.droidkaigi.confsched2020.session.ui.animation.popUp
 import java.util.regex.Pattern
 
-class SessionDetailTitleItem @AssistedInject constructor(
-    @Assisted private val session: Session,
-    @Assisted private val searchQuery: String?,
-    @Assisted private val lifecycleCoroutineScope: LifecycleCoroutineScope,
-    @Assisted private val thumbsUpCount: ThumbsUpCount,
-    @Assisted private val thumbsUpListener: () -> Unit
+class SessionDetailTitleItem(
+    private val session: Session,
+    private val searchQuery: String?,
+    private val lifecycleCoroutineScope: LifecycleCoroutineScope,
+    private val thumbsUpCount: ThumbsUpCount,
+    private val thumbsUpListener: () -> Unit
 ) : BindableItem<ItemSessionDetailTitleBinding>(session.id.hashCode().toLong()) {
     override fun getLayout() = R.layout.item_session_detail_title
 
@@ -132,16 +130,5 @@ class SessionDetailTitleItem @AssistedInject constructor(
             R.string.thumbs_up_increment_label,
             count
         )
-    }
-
-    @AssistedInject.Factory
-    interface Factory {
-        fun create(
-            session: Session,
-            searchQuery: String? = null,
-            lifecycleCoroutineScope: LifecycleCoroutineScope,
-            thumbsUpCount: ThumbsUpCount,
-            thumbsUpListener: () -> Unit
-        ): SessionDetailTitleItem
     }
 }

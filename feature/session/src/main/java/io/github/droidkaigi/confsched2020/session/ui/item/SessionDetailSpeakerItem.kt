@@ -11,8 +11,6 @@ import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import coil.Coil
 import coil.api.load
 import coil.transform.CircleCropTransformation
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
 import com.xwray.groupie.databinding.BindableItem
 import io.github.droidkaigi.confsched2020.model.Speaker
 import io.github.droidkaigi.confsched2020.session.R
@@ -24,11 +22,11 @@ import io.github.droidkaigi.confsched2020.util.lazyWithParam
 /**
  * @param first For setting margin by SessionDetailItemDecoration
  */
-class SessionDetailSpeakerItem @AssistedInject constructor(
+class SessionDetailSpeakerItem(
     private val lifecycleOwnerLiveData: LiveData<LifecycleOwner>,
-    @Assisted private val speaker: Speaker,
-    @Assisted val first: Boolean,
-    @Assisted private val onClick: (FragmentNavigator.Extras) -> Unit
+    private val speaker: Speaker,
+    val first: Boolean,
+    private val onClick: (FragmentNavigator.Extras) -> Unit
 ) : BindableItem<ItemSessionDetailSpeakerBinding>(speaker.id.hashCode().toLong()) {
 
     private val placeholder by lazyWithParam<Context, VectorDrawableCompat?> {
@@ -72,14 +70,5 @@ class SessionDetailSpeakerItem @AssistedInject constructor(
                 speakerImageView.setImageDrawable(it)
             }
         }
-    }
-
-    @AssistedInject.Factory
-    interface Factory {
-        fun create(
-            speaker: Speaker,
-            first: Boolean,
-            onClick: (FragmentNavigator.Extras) -> Unit
-        ): SessionDetailSpeakerItem
     }
 }

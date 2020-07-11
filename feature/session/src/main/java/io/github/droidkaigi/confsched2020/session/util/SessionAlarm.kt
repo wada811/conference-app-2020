@@ -16,9 +16,8 @@ import io.github.droidkaigi.confsched2020.model.SpeechSession
 import io.github.droidkaigi.confsched2020.model.defaultLang
 import io.github.droidkaigi.confsched2020.notification.NotificationChannelInfo
 import io.github.droidkaigi.confsched2020.widget.component.R
-import javax.inject.Inject
 
-class SessionAlarm @Inject constructor(private val app: Application) {
+class SessionAlarm(private val app: Application) {
 
     fun toggleRegister(session: Session) {
         if (session.isFavorited) {

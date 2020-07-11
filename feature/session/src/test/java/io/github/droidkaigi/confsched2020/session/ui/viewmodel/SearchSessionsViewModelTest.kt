@@ -1,8 +1,10 @@
 package io.github.droidkaigi.confsched2020.session.ui.viewmodel
 
 import com.jraska.livedata.test
+import io.github.droidkaigi.confsched2020.data.repository.di.RepositoryModule
 import io.github.droidkaigi.confsched2020.model.repository.SessionRepository
 import io.github.droidkaigi.confsched2020.widget.component.MockkRule
+import io.github.droidkaigi.confsched2020.widget.component.TestApplication
 import io.github.droidkaigi.confsched2020.widget.component.ViewModelTestRule
 import io.kotlintest.shouldBe
 import io.mockk.coEvery
@@ -14,15 +16,18 @@ import org.junit.Test
 class SearchSessionsViewModelTest {
     @get:Rule val viewModelTestRule = ViewModelTestRule()
     @get:Rule val mockkRule = MockkRule(this)
+
+    @MockK(relaxed = true)
+    lateinit var repositoryModule: RepositoryModule
+
     @MockK(relaxed = true)
     lateinit var sessionRepository: SessionRepository
 
     @Test
     fun load() {
+        coEvery { repositoryModule.sessionRepository } returns sessionRepository
         coEvery { sessionRepository.sessionContents() } returns flowOf(Dummies.sessionContents)
-        val searchSessionViewModel = SearchSessionsViewModel(
-            sessionRepository = sessionRepository
-        )
+        val searchSessionViewModel = SearchSessionsViewModel(TestApplication(repositoryModule))
 
         val testObserver = searchSessionViewModel
             .uiModel
@@ -40,10 +45,9 @@ class SearchSessionsViewModelTest {
 
     @Test
     fun searchSession_notFound() {
+        coEvery { repositoryModule.sessionRepository } returns sessionRepository
         coEvery { sessionRepository.sessionContents() } returns flowOf(Dummies.sessionContents)
-        val searchSessionViewModel = SearchSessionsViewModel(
-            sessionRepository = sessionRepository
-        )
+        val searchSessionViewModel = SearchSessionsViewModel(TestApplication(repositoryModule))
 
         val testObserver = searchSessionViewModel
             .uiModel
@@ -72,10 +76,9 @@ class SearchSessionsViewModelTest {
 
     @Test
     fun searchSession_Found() {
+        coEvery { repositoryModule.sessionRepository } returns sessionRepository
         coEvery { sessionRepository.sessionContents() } returns flowOf(Dummies.sessionContents)
-        val searchSessionViewModel = SearchSessionsViewModel(
-            sessionRepository = sessionRepository
-        )
+        val searchSessionViewModel = SearchSessionsViewModel(TestApplication(repositoryModule))
 
         val testObserver = searchSessionViewModel
             .uiModel

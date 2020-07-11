@@ -1,11 +1,7 @@
 package io.github.droidkaigi.confsched2020.session.ui.item
 
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigatorExtras
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
 import com.xwray.groupie.Item
 import com.xwray.groupie.databinding.BindableItem
 import io.github.droidkaigi.confsched2020.model.SpeechSession
@@ -14,9 +10,8 @@ import io.github.droidkaigi.confsched2020.session.R
 import io.github.droidkaigi.confsched2020.session.databinding.ItemSpeakerSessionBinding
 import io.github.droidkaigi.confsched2020.session.ui.SpeakerFragmentDirections
 
-class SpeakerSessionItem @AssistedInject constructor(
-    @Assisted val speechSession: SpeechSession,
-    private val lifecycleOwnerLiveData: LiveData<LifecycleOwner>
+class SpeakerSessionItem(
+    val speechSession: SpeechSession
 ) : BindableItem<ItemSpeakerSessionBinding>(speechSession.id.hashCode().toLong()) {
 
     companion object {
@@ -47,11 +42,4 @@ class SpeakerSessionItem @AssistedInject constructor(
 
     override fun hasSameContentAs(other: Item<*>): Boolean =
         speechSession == (other as? SpeakerSessionItem)?.speechSession
-
-    @AssistedInject.Factory
-    interface Factory {
-        fun create(
-            speechSession: SpeechSession
-        ): SpeakerSessionItem
-    }
 }

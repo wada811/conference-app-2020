@@ -4,39 +4,29 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.transition.MaterialContainerTransform
+import com.wada811.dependencyproperty.DependencyModule
+import com.wada811.dependencyproperty.replaceModule
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.databinding.GroupieViewHolder
-import dagger.Module
-import dagger.Provides
 import dev.chrisbanes.insetter.doOnApplyWindowInsets
-import io.github.droidkaigi.confsched2020.di.Injectable
-import io.github.droidkaigi.confsched2020.di.PageScope
-import io.github.droidkaigi.confsched2020.ext.assistedViewModels
 import io.github.droidkaigi.confsched2020.ext.isShow
 import io.github.droidkaigi.confsched2020.session.R
 import io.github.droidkaigi.confsched2020.session.databinding.FragmentSpeakerBinding
 import io.github.droidkaigi.confsched2020.session.ui.item.SpeakerDetailItem
 import io.github.droidkaigi.confsched2020.session.ui.item.SpeakerSessionItem
 import io.github.droidkaigi.confsched2020.session.ui.viewmodel.SpeakerViewModel
-import javax.inject.Inject
 
-class SpeakerFragment : Fragment(R.layout.fragment_speaker), Injectable {
+class SpeakerFragment : Fragment(R.layout.fragment_speaker) {
 
-    @Inject lateinit var speakerViewModelFactory: SpeakerViewModel.Factory
-    private val speakerViewModel by assistedViewModels {
-        speakerViewModelFactory.create(navArgs.speakerId, navArgs.searchQuery)
-    }
-
-    @Inject lateinit var speakerDetailItemFactory: SpeakerDetailItem.Factory
-    @Inject lateinit var speakerSessionItemFactory: SpeakerSessionItem.Factory
-
+    private val speakerViewModel: SpeakerViewModel by viewModels()
     private val navArgs: SpeakerFragmentArgs by navArgs()
+
+    class SpeakerFragmentArgsModule(val navArgs: SpeakerFragmentArgs) : DependencyModule
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +37,7 @@ class SpeakerFragment : Fragment(R.layout.fragment_speaker), Injectable {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        replaceModule(SpeakerFragmentArgsModule(navArgs))
         val binding = FragmentSpeakerBinding.bind(view)
         binding.speakerRoot.transitionName = "${navArgs.speakerId}-${navArgs.transitionNameSuffix}"
         postponeEnterTransition()
@@ -70,27 +61,15 @@ class SpeakerFragment : Fragment(R.layout.fragment_speaker), Injectable {
 
                 groupAdapter.update(
                     listOf(
-                        speakerDetailItemFactory.create(
+                        SpeakerDetailItem(
                             speaker,
                             navArgs.transitionNameSuffix,
-                            navArgs.searchQuery) {
-                            startPostponedEnterTransition()
-                        }
-                    ) + sessions.map { speakerSessionItemFactory.create(it) }
+                            navArgs.searchQuery,
+                            { startPostponedEnterTransition() },
+                            viewLifecycleOwnerLiveData
+                        )
+                    ) + sessions.map { SpeakerSessionItem(it) }
                 )
             }
-    }
-}
-
-@Module
-abstract class SpeakerFragmentModule {
-    companion object {
-        @PageScope
-        @Provides
-        fun providesLifecycleOwnerLiveData(
-            speakerFragment: SpeakerFragment
-        ): LiveData<LifecycleOwner> {
-            return speakerFragment.viewLifecycleOwnerLiveData
-        }
     }
 }

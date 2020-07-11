@@ -1,11 +1,13 @@
 package io.github.droidkaigi.confsched2020.session.ui.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.liveData
-import com.squareup.inject.assisted.AssistedInject
+import com.wada811.dependencyproperty.dependency
+import io.github.droidkaigi.confsched2020.data.repository.di.RepositoryModule
 import io.github.droidkaigi.confsched2020.ext.combine
 import io.github.droidkaigi.confsched2020.ext.toLoadingState
 import io.github.droidkaigi.confsched2020.model.LoadState
@@ -13,9 +15,9 @@ import io.github.droidkaigi.confsched2020.model.SearchResult
 import io.github.droidkaigi.confsched2020.model.SessionContents
 import io.github.droidkaigi.confsched2020.model.repository.SessionRepository
 
-class SearchSessionsViewModel @AssistedInject constructor(
-    private val sessionRepository: SessionRepository
-) : ViewModel() {
+class SearchSessionsViewModel(application: Application) : AndroidViewModel(application) {
+    private val sessionRepository by dependency<RepositoryModule, SessionRepository> { it.sessionRepository }
+
     data class UiModel(val searchResult: SearchResult) {
         companion object {
             val EMPTY = UiModel(SearchResult.EMPTY)
@@ -58,10 +60,5 @@ class SearchSessionsViewModel @AssistedInject constructor(
 
     fun updateSearchQuery(query: String) {
         searchQueryLiveData.postValue(query)
-    }
-
-    @AssistedInject.Factory
-    interface Factory {
-        fun create(): SearchSessionsViewModel
     }
 }

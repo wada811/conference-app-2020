@@ -15,18 +15,12 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.content.getSystemService
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.databinding.GroupieViewHolder
-import dagger.Module
-import dagger.Provides
 import dev.chrisbanes.insetter.doOnApplyWindowInsets
-import io.github.droidkaigi.confsched2020.di.Injectable
-import io.github.droidkaigi.confsched2020.di.PageScope
-import io.github.droidkaigi.confsched2020.ext.assistedActivityViewModels
-import io.github.droidkaigi.confsched2020.ext.assistedViewModels
 import io.github.droidkaigi.confsched2020.ext.requireValue
 import io.github.droidkaigi.confsched2020.model.defaultLang
 import io.github.droidkaigi.confsched2020.session.R
@@ -40,34 +34,13 @@ import io.github.droidkaigi.confsched2020.session.ui.widget.SearchItemDecoration
 import io.github.droidkaigi.confsched2020.system.ui.viewmodel.SystemViewModel
 import io.github.droidkaigi.confsched2020.util.AppcompatRId
 import java.util.Locale
-import javax.inject.Inject
-import javax.inject.Provider
 
-class SearchSessionsFragment : Fragment(R.layout.fragment_search_sessions), Injectable {
+class SearchSessionsFragment : Fragment(R.layout.fragment_search_sessions) {
 
-    @Inject lateinit var searchSessionsModelFactory: SearchSessionsViewModel.Factory
-    private val searchSessionsViewModel by assistedViewModels {
-        searchSessionsModelFactory.create()
-    }
+    private val searchSessionsViewModel: SearchSessionsViewModel by viewModels()
+    private val sessionsViewModel: SessionsViewModel by activityViewModels()
 
-    @Inject lateinit var sessionsViewModelProvider: Provider<SessionsViewModel>
-    private val sessionsViewModel: SessionsViewModel by assistedActivityViewModels {
-        sessionsViewModelProvider.get()
-    }
-
-    @Inject lateinit var systemViewModelProvider: Provider<SystemViewModel>
-    private val systemViewModel: SystemViewModel by assistedActivityViewModels {
-        systemViewModelProvider.get()
-    }
-
-    @Inject
-    lateinit var sessionItemFactory: SessionItem.Factory
-
-    @Inject
-    lateinit var speakerItemFactory: SpeakerItem.Factory
-
-    @Inject
-    lateinit var sectionHeaderItemFactory: SectionHeaderItem.Factory
+    private val systemViewModel: SystemViewModel by activityViewModels()
 
     private var menu: Menu? = null
 
@@ -130,10 +103,10 @@ class SearchSessionsFragment : Fragment(R.layout.fragment_search_sessions), Inje
 
             if (uiModel.searchResult.speakers.isNotEmpty()) {
                 val title = resources.getString(R.string.speaker)
-                groupAdapter.add(sectionHeaderItemFactory.create(title))
+                groupAdapter.add(SectionHeaderItem(title))
                 groupAdapter.addAll(
                     uiModel.searchResult.speakers.map {
-                        speakerItemFactory.create(it, uiModel.searchResult.query)
+                        SpeakerItem(it, uiModel.searchResult.query, viewLifecycleOwnerLiveData)
                     }.sortedBy {
                         it.speaker.name.toUpperCase(Locale.getDefault())
                     }
@@ -142,10 +115,15 @@ class SearchSessionsFragment : Fragment(R.layout.fragment_search_sessions), Inje
 
             if (uiModel.searchResult.sessions.isNotEmpty()) {
                 val title = resources.getString(R.string.session)
-                groupAdapter.add(sectionHeaderItemFactory.create(title))
+                groupAdapter.add(SectionHeaderItem(title))
                 groupAdapter.addAll(
                     uiModel.searchResult.sessions.map {
-                        sessionItemFactory.create(it, sessionsViewModel, uiModel.searchResult.query)
+                        SessionItem(
+                            it,
+                            sessionsViewModel,
+                            uiModel.searchResult.query,
+                            viewLifecycleOwnerLiveData
+                        )
                     }.sortedBy {
                         it.title().getByLang(defaultLang())
                     }
@@ -226,19 +204,6 @@ class SearchSessionsFragment : Fragment(R.layout.fragment_search_sessions), Inje
     companion object {
         fun newInstance(): SearchSessionsFragment {
             return SearchSessionsFragment()
-        }
-    }
-}
-
-@Module
-abstract class SearchSessionsFragmentModule {
-    companion object {
-        @PageScope
-        @Provides
-        fun providesLifecycleOwnerLiveData(
-            searchSessionsFragment: SearchSessionsFragment
-        ): LiveData<LifecycleOwner> {
-            return searchSessionsFragment.viewLifecycleOwnerLiveData
         }
     }
 }

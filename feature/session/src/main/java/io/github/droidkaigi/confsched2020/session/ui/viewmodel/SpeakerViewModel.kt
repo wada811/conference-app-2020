@@ -1,10 +1,11 @@
 package io.github.droidkaigi.confsched2020.session.ui.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
+import com.wada811.dependencyproperty.dependency
+import io.github.droidkaigi.confsched2020.data.repository.di.RepositoryModule
 import io.github.droidkaigi.confsched2020.ext.combine
 import io.github.droidkaigi.confsched2020.ext.toAppError
 import io.github.droidkaigi.confsched2020.ext.toLoadingState
@@ -14,14 +15,15 @@ import io.github.droidkaigi.confsched2020.model.Speaker
 import io.github.droidkaigi.confsched2020.model.SpeakerId
 import io.github.droidkaigi.confsched2020.model.SpeechSession
 import io.github.droidkaigi.confsched2020.model.repository.SessionRepository
+import io.github.droidkaigi.confsched2020.session.ui.SpeakerFragment
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 
-class SpeakerViewModel @AssistedInject constructor(
-    @Assisted private val speakerId: SpeakerId,
-    @Assisted private val searchQuery: String?,
-    private val sessionRepository: SessionRepository
-) : ViewModel() {
+class SpeakerViewModel(application: Application) : AndroidViewModel(application) {
+    private val speakerId by dependency<SpeakerFragment.SpeakerFragmentArgsModule, SpeakerId> { it.navArgs.speakerId }
+    private val searchQuery by dependency<SpeakerFragment.SpeakerFragmentArgsModule, String?> { it.navArgs.searchQuery }
+    private val sessionRepository by dependency<RepositoryModule, SessionRepository> { it.sessionRepository }
+
     // UiModel definition
     data class UiModel(
         val isLoading: Boolean,
@@ -97,13 +99,5 @@ class SpeakerViewModel @AssistedInject constructor(
             sessions = speakerSessions,
             searchQuery = searchQuery
         )
-    }
-
-    @AssistedInject.Factory
-    interface Factory {
-        fun create(
-            speakerId: SpeakerId,
-            searchQuery: String? = null
-        ): SpeakerViewModel
     }
 }

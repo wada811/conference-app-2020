@@ -6,56 +6,29 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.soywiz.klock.DateTime
-import dagger.Module
-import dagger.Provides
-import dagger.android.AndroidInjector
-import dagger.android.ContributesAndroidInjector
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.HasAndroidInjector
-import io.github.droidkaigi.confsched2020.di.PageScope
-import io.github.droidkaigi.confsched2020.ext.assistedActivityViewModels
 import io.github.droidkaigi.confsched2020.model.SessionPage
 import io.github.droidkaigi.confsched2020.model.defaultTimeZoneOffset
 import io.github.droidkaigi.confsched2020.session.R
 import io.github.droidkaigi.confsched2020.session.databinding.FragmentMainSessionsBinding
 import io.github.droidkaigi.confsched2020.session.ui.MainSessionsFragmentDirections.Companion.actionSessionToSearchSessions
-import io.github.droidkaigi.confsched2020.session.ui.item.SessionItem
 import io.github.droidkaigi.confsched2020.session.ui.viewmodel.SessionsViewModel
 import io.github.droidkaigi.confsched2020.system.ui.viewmodel.SystemViewModel
-import javax.inject.Inject
-import javax.inject.Provider
 
-class MainSessionsFragment : Fragment(R.layout.fragment_main_sessions), HasAndroidInjector {
+class MainSessionsFragment : Fragment(R.layout.fragment_main_sessions) {
 
-    @Inject
-    lateinit var sessionsViewModelProvider: Provider<SessionsViewModel>
-    private val sessionsViewModel: SessionsViewModel by assistedActivityViewModels {
-        sessionsViewModelProvider.get()
-    }
-    @Inject
-    lateinit var systemViewModelProvider: Provider<SystemViewModel>
-    private val systemViewModel: SystemViewModel by assistedActivityViewModels {
-        systemViewModelProvider.get()
-    }
+    private val sessionsViewModel: SessionsViewModel by activityViewModels()
+    private val systemViewModel: SystemViewModel by activityViewModels()
 
-    @Inject
-    lateinit var sessionItemFactory: SessionItem.Factory
     private val args: MainSessionsFragmentArgs by lazy {
         MainSessionsFragmentArgs.fromBundle(arguments ?: Bundle())
     }
-
-    @Inject
-    lateinit var androidInjector: DispatchingAndroidInjector<Any>
-
-    override fun androidInjector(): AndroidInjector<Any> = androidInjector
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -130,21 +103,5 @@ class MainSessionsFragment : Fragment(R.layout.fragment_main_sessions), HasAndro
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-}
-
-@Module
-abstract class MainSessionsFragmentModule {
-    @ContributesAndroidInjector(modules = [SessionsFragmentModule::class])
-    abstract fun contributeSessionPageFragment(): SessionsFragment
-
-    companion object {
-        @PageScope
-        @Provides
-        fun providesLifecycleOwnerLiveData(
-            mainSessionsFragment: MainSessionsFragment
-        ): LiveData<LifecycleOwner> {
-            return mainSessionsFragment.viewLifecycleOwnerLiveData
-        }
     }
 }

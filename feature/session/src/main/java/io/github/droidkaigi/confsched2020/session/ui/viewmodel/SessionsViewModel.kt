@@ -1,11 +1,14 @@
 package io.github.droidkaigi.confsched2020.session.ui.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
+import com.wada811.dependencyproperty.dependency
+import io.github.droidkaigi.confsched2020.data.repository.di.RepositoryModule
 import io.github.droidkaigi.confsched2020.ext.combine
 import io.github.droidkaigi.confsched2020.ext.requireValue
 import io.github.droidkaigi.confsched2020.ext.toAppError
@@ -24,16 +27,16 @@ import io.github.droidkaigi.confsched2020.model.SessionContents
 import io.github.droidkaigi.confsched2020.model.SessionList
 import io.github.droidkaigi.confsched2020.model.SessionPage
 import io.github.droidkaigi.confsched2020.model.repository.SessionRepository
+import io.github.droidkaigi.confsched2020.session.di.SessionModule
 import io.github.droidkaigi.confsched2020.session.util.SessionAlarm
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import timber.log.debug
-import javax.inject.Inject
 
-class SessionsViewModel @Inject constructor(
-    private val sessionRepository: SessionRepository,
-    private val sessionAlarm: SessionAlarm
-) : ViewModel() {
+class SessionsViewModel(application: Application) : AndroidViewModel(application) {
+    private val sessionRepository by dependency<RepositoryModule, SessionRepository> { it.sessionRepository }
+    private val sessionAlarm by dependency<SessionModule, SessionAlarm> { it.sessionAlarm }
+
     // UiModel definition
     data class UiModel(
         val isLoading: Boolean,

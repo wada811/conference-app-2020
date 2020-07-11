@@ -5,8 +5,8 @@ import android.view.View
 import androidx.annotation.IdRes
 import androidx.core.view.doOnNextLayout
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.navigation.NavOptions
@@ -15,15 +15,11 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.google.android.material.transition.Hold
+import com.wada811.dependencyproperty.DependencyModule
+import com.wada811.dependencyproperty.replaceModule
 import com.xwray.groupie.Group
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.databinding.GroupieViewHolder
-import dagger.Module
-import dagger.Provides
-import io.github.droidkaigi.confsched2020.di.Injectable
-import io.github.droidkaigi.confsched2020.di.PageScope
-import io.github.droidkaigi.confsched2020.ext.assistedActivityViewModels
-import io.github.droidkaigi.confsched2020.ext.assistedViewModels
 import io.github.droidkaigi.confsched2020.ext.isShow
 import io.github.droidkaigi.confsched2020.model.Session
 import io.github.droidkaigi.confsched2020.model.Speaker
@@ -41,50 +37,23 @@ import io.github.droidkaigi.confsched2020.session.ui.item.SessionDetailSpeakerIt
 import io.github.droidkaigi.confsched2020.session.ui.item.SessionDetailSpeakerSubtitleItem
 import io.github.droidkaigi.confsched2020.session.ui.item.SessionDetailTargetItem
 import io.github.droidkaigi.confsched2020.session.ui.item.SessionDetailTitleItem
-import io.github.droidkaigi.confsched2020.session.ui.item.SessionItem
 import io.github.droidkaigi.confsched2020.session.ui.viewmodel.SessionDetailViewModel
 import io.github.droidkaigi.confsched2020.session.ui.widget.SessionDetailItemDecoration
 import io.github.droidkaigi.confsched2020.system.ui.viewmodel.SystemViewModel
 import io.github.droidkaigi.confsched2020.ui.animation.MEDIUM_EXPAND_DURATION
 import io.github.droidkaigi.confsched2020.ui.transition.fadeThrough
-import javax.inject.Inject
-import javax.inject.Provider
 
-class SessionDetailFragment : Fragment(R.layout.fragment_session_detail), Injectable {
-
-    @Inject lateinit var systemViewModelFactory: Provider<SystemViewModel>
-    private val systemViewModel by assistedActivityViewModels {
-        systemViewModelFactory.get()
-    }
-    @Inject lateinit var sessionDetailViewModelFactory: SessionDetailViewModel.Factory
-    private val sessionDetailViewModel by assistedViewModels {
-        sessionDetailViewModelFactory.create(navArgs.sessionId, navArgs.searchQuery)
-    }
+class SessionDetailFragment : Fragment(R.layout.fragment_session_detail) {
+    private val systemViewModel: SystemViewModel by activityViewModels()
+    private val sessionDetailViewModel: SessionDetailViewModel by viewModels()
 
     private val navArgs: SessionDetailFragmentArgs by navArgs()
-    @Inject lateinit var sessionItemFactory: SessionItem.Factory
+
+    class SessionDetailFragmentArgsModule(val navArgs: SessionDetailFragmentArgs) : DependencyModule
 
     companion object {
         const val TRANSITION_NAME_SUFFIX = "detail"
     }
-
-    @Inject
-    lateinit var sessionDetailTitleItemFactory: SessionDetailTitleItem.Factory
-
-    @Inject
-    lateinit var sessionDetailDescriptionItemFactory: SessionDetailDescriptionItem.Factory
-
-    @Inject
-    lateinit var sessionDetailTargetItemFactory: SessionDetailTargetItem.Factory
-
-    @Inject
-    lateinit var sessionDetailSpeakerSubtitleItemFactory: SessionDetailSpeakerSubtitleItem.Factory
-
-    @Inject
-    lateinit var sessionDetailSpeakerItemFactory: SessionDetailSpeakerItem.Factory
-
-    @Inject
-    lateinit var sessionDetailMaterialItemFactory: SessionDetailMaterialItem.Factory
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,7 +66,7 @@ class SessionDetailFragment : Fragment(R.layout.fragment_session_detail), Inject
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         postponeEnterTransition()
-
+        replaceModule(SessionDetailFragmentArgsModule(navArgs))
         val binding = FragmentSessionDetailBinding.bind(view)
         val adapter = GroupAdapter<GroupieViewHolder<*>>()
         binding.sessionDetailRecycler.adapter = adapter
@@ -205,7 +174,7 @@ class SessionDetailFragment : Fragment(R.layout.fragment_session_detail), Inject
             "${session.id}-${navArgs.transitionNameSuffix}"
 
         val items = mutableListOf<Group>()
-        items += sessionDetailTitleItemFactory.create(
+        items += SessionDetailTitleItem(
             session,
             searchQuery,
             viewLifecycleOwner.lifecycleScope,
@@ -213,22 +182,23 @@ class SessionDetailFragment : Fragment(R.layout.fragment_session_detail), Inject
         ) {
             sessionDetailViewModel.thumbsUp(session)
         }
-        items += sessionDetailDescriptionItemFactory.create(
+        items += SessionDetailDescriptionItem(
             session,
             showEllipsis,
             searchQuery
         ) { sessionDetailViewModel.expandDescription() }
         if (session.hasIntendedAudience)
-            items += sessionDetailTargetItemFactory.create(session)
+            items += SessionDetailTargetItem(session)
         if (session.hasSpeaker) {
-            items += sessionDetailSpeakerSubtitleItemFactory.create()
+            items += SessionDetailSpeakerSubtitleItem()
             var firstSpeaker = true
             (session as? SpeechSession)?.speakers.orEmpty().indices.forEach { index ->
                 val speaker: Speaker =
                     (session as? SpeechSession)?.speakers?.getOrNull(index)
                         ?: return@forEach
                 items +=
-                    sessionDetailSpeakerItemFactory.create(
+                    SessionDetailSpeakerItem(
+                        viewLifecycleOwnerLiveData,
                         speaker,
                         firstSpeaker
                     ) { extras ->
@@ -245,7 +215,7 @@ class SessionDetailFragment : Fragment(R.layout.fragment_session_detail), Inject
                 firstSpeaker = false
             }
         }
-        items += sessionDetailMaterialItemFactory.create(
+        items += SessionDetailMaterialItem(
             session,
             object : SessionDetailMaterialItem.Listener {
                 override fun onClickMovie(movieUrl: String) {
@@ -264,18 +234,5 @@ class SessionDetailFragment : Fragment(R.layout.fragment_session_detail), Inject
             sessionDetailViewModel.favorite(session)
         }
         binding.session = session
-    }
-}
-
-@Module
-abstract class SessionDetailFragmentModule {
-    companion object {
-        @PageScope
-        @Provides
-        fun providesLifecycleOwnerLiveData(
-            sessionDetailFragment: SessionDetailFragment
-        ): LiveData<LifecycleOwner> {
-            return sessionDetailFragment.viewLifecycleOwnerLiveData
-        }
     }
 }
