@@ -6,8 +6,10 @@ import com.jraska.livedata.test
 import io.github.droidkaigi.confsched2020.data.api.DroidKaigiApi
 import io.github.droidkaigi.confsched2020.data.api.response.StaffResponse
 import io.github.droidkaigi.confsched2020.data.db.StaffDatabase
+import io.github.droidkaigi.confsched2020.staff.ui.StaffModule
 import io.github.droidkaigi.confsched2020.staff.ui.readFromLocal
 import io.github.droidkaigi.confsched2020.widget.component.MockkRule
+import io.github.droidkaigi.confsched2020.widget.component.TestApplication
 import io.github.droidkaigi.confsched2020.widget.component.ViewModelTestRule
 import io.kotlintest.shouldBe
 import io.mockk.coEvery
@@ -23,6 +25,8 @@ class StaffsViewModelTest {
     val viewModelTest = ViewModelTestRule()
     @get:Rule
     val mockkRule = MockkRule(this)
+    @MockK(relaxed = true)
+    lateinit var staffModule: StaffModule
     @MockK(relaxed = true)
     lateinit var droidKaigiApi: DroidKaigiApi
     @MockK(relaxed = true)
@@ -40,7 +44,8 @@ class StaffsViewModelTest {
             )
             .cachePolicy(MemoryPolicy.builder().build())
             .build()
-        val staffsViewModel = StaffsViewModel(store)
+        coEvery { staffModule.staffsContentsStore } returns store
+        val staffsViewModel = StaffsViewModel(TestApplication(staffModule))
 
         val testObserver = staffsViewModel
             .uiModel

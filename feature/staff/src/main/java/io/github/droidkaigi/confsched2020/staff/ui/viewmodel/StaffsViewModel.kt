@@ -1,22 +1,23 @@
 package io.github.droidkaigi.confsched2020.staff.ui.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import com.dropbox.android.external.store4.Store
 import com.dropbox.android.external.store4.StoreRequest
 import com.dropbox.android.external.store4.StoreResponse
+import com.wada811.dependencyproperty.dependency
 import io.github.droidkaigi.confsched2020.ext.combine
 import io.github.droidkaigi.confsched2020.ext.toAppError
 import io.github.droidkaigi.confsched2020.model.AppError
 import io.github.droidkaigi.confsched2020.model.StaffContents
+import io.github.droidkaigi.confsched2020.staff.ui.StaffModule
 import kotlinx.coroutines.FlowPreview
-import javax.inject.Inject
 
 @FlowPreview
-class StaffsViewModel @Inject constructor(
-    store: Store<Unit, StaffContents>
-) : ViewModel() {
+class StaffsViewModel(application: Application) : AndroidViewModel(application) {
+    private val store: Store<Unit, StaffContents> by dependency<StaffModule, Store<Unit, StaffContents>> { it.staffsContentsStore }
 
     data class UiModel(
         val isLoading: Boolean,

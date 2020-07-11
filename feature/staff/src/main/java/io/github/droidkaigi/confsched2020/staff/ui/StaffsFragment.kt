@@ -1,12 +1,13 @@
 package io.github.droidkaigi.confsched2020.staff.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.VisibleForTesting
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.RecyclerView
@@ -14,26 +15,22 @@ import androidx.transition.TransitionManager
 import com.dropbox.android.external.store4.MemoryPolicy
 import com.dropbox.android.external.store4.Store
 import com.dropbox.android.external.store4.StoreBuilder
+import com.wada811.dependencyproperty.DependencyModule
+import com.wada811.dependencyproperty.addModule
+import com.wada811.dependencyproperty.dependency
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.databinding.GroupieViewHolder
-import dagger.Component
-import dagger.Module
-import dagger.Provides
 import dev.chrisbanes.insetter.doOnApplyWindowInsets
-import io.github.droidkaigi.confsched2020.App
 import io.github.droidkaigi.confsched2020.data.api.DroidKaigiApi
 import io.github.droidkaigi.confsched2020.data.api.response.StaffResponse
 import io.github.droidkaigi.confsched2020.data.db.StaffDatabase
 import io.github.droidkaigi.confsched2020.data.db.entity.StaffEntity
-import io.github.droidkaigi.confsched2020.di.AppComponent
-import io.github.droidkaigi.confsched2020.di.PageScope
-import io.github.droidkaigi.confsched2020.ext.assistedViewModels
+import io.github.droidkaigi.confsched2020.data.repository.di.RepositoryModule
 import io.github.droidkaigi.confsched2020.ext.isShow
 import io.github.droidkaigi.confsched2020.model.Staff
 import io.github.droidkaigi.confsched2020.model.StaffContents
 import io.github.droidkaigi.confsched2020.staff.R
 import io.github.droidkaigi.confsched2020.staff.databinding.FragmentStaffsBinding
-import io.github.droidkaigi.confsched2020.staff.ui.di.StaffAssistedInjectModule
 import io.github.droidkaigi.confsched2020.staff.ui.item.StaffItem
 import io.github.droidkaigi.confsched2020.staff.ui.viewmodel.StaffsViewModel
 import io.github.droidkaigi.confsched2020.system.ui.viewmodel.SystemViewModel
@@ -41,35 +38,24 @@ import io.github.droidkaigi.confsched2020.ui.transition.Stagger
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
-import javax.inject.Provider
 
 @FlowPreview
 class StaffsFragment : Fragment(R.layout.fragment_staffs) {
 
-    @Inject
-    lateinit var staffsFactory: Provider<StaffsViewModel>
-    private val staffsViewModel by assistedViewModels {
-        staffsFactory.get()
-    }
+    private val staffsViewModel: StaffsViewModel by viewModels()
+    private val systemViewModel: SystemViewModel by activityViewModels()
 
-    @Inject
-    lateinit var systemViewModelFactory: Provider<SystemViewModel>
-    private val systemViewModel by assistedViewModels {
-        systemViewModelFactory.get()
-    }
+    private val droidKaigiApi by dependency<RepositoryModule, DroidKaigiApi> { it.apiModule.droidKaigiApi }
+    private val staffDatabase by dependency<RepositoryModule, StaffDatabase> { it.dbModule.staffDatabase }
 
-    @Inject
-    lateinit var staffItemFactory: StaffItem.Factory
+    override fun onAttach(context: Context) {
+        addModule(StaffModule(droidKaigiApi, staffDatabase))
+        super.onAttach(context)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentStaffsBinding.bind(view)
-
-        val appComponent = (requireContext().applicationContext as App).appComponent
-        val component = DaggerStaffComponent.factory()
-            .create(appComponent, StaffModule(this))
-        component.inject(this)
 
         val groupAdapter = GroupAdapter<GroupieViewHolder<*>>()
         binding.staffRecycler.adapter = groupAdapter
@@ -101,7 +87,7 @@ class StaffsFragment : Fragment(R.layout.fragment_staffs) {
             // Delay the stagger effect until the list is updated.
             TransitionManager.beginDelayedTransition(binding.staffRecycler, stagger)
             groupAdapter.update(uiModel.staffContents.staffs.map {
-                staffItemFactory.create(it)
+                StaffItem(it, viewLifecycleOwnerLiveData)
             })
 
             uiModel.error?.let {
@@ -121,19 +107,13 @@ fun readFromLocal(staffDatabase: StaffDatabase): Flow<StaffContents> {
 private fun StaffEntity.toStaff(): Staff = Staff(id, name, iconUrl, profileUrl)
 
 @FlowPreview
-@Module
-class StaffModule(private val fragment: StaffsFragment) {
-    @PageScope
-    @Provides
-    fun providesLifecycleOwnerLiveData(): LiveData<LifecycleOwner> {
-        return fragment.viewLifecycleOwnerLiveData
-    }
-    @Provides
-    fun provideStaffsContentsStore(
-        api: DroidKaigiApi,
-        staffDatabase: StaffDatabase
-    ): Store<Unit, StaffContents> {
-        return StoreBuilder.fromNonFlow<Unit, StaffResponse> { api.getStaffs() }
+class StaffModule(
+    api: DroidKaigiApi,
+    staffDatabase: StaffDatabase
+) : DependencyModule {
+
+    val staffsContentsStore: Store<Unit, StaffContents> by lazy {
+        StoreBuilder.fromNonFlow<Unit, StaffResponse> { api.getStaffs() }
             .persister(
                 reader = { readFromLocal(staffDatabase) },
                 writer = { _: Unit, output: StaffResponse -> staffDatabase.save(output) }
@@ -141,22 +121,4 @@ class StaffModule(private val fragment: StaffsFragment) {
             .cachePolicy(MemoryPolicy.builder().build())
             .build()
     }
-}
-
-@FlowPreview
-@PageScope
-@Component(
-    modules = [
-        StaffModule::class,
-        StaffAssistedInjectModule::class
-    ],
-    dependencies = [AppComponent::class]
-)
-interface StaffComponent {
-    @Component.Factory
-    interface Factory {
-        fun create(appComponent: AppComponent, staffModule: StaffModule): StaffComponent
-    }
-
-    fun inject(fragment: StaffsFragment)
 }
