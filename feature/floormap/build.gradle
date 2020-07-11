@@ -21,13 +21,6 @@ dependencies {
 
     implementation Dep.PhotoView.photoview
 
-    implementation Dep.Dagger.core
-    implementation Dep.Dagger.androidSupport
-    kapt Dep.Dagger.compiler
-    kapt Dep.Dagger.androidProcessor
-    compileOnly Dep.Dagger.assistedInjectAnnotations
-    kapt Dep.Dagger.assistedInjectProcessor
-
     implementation Dep.Coil.coil
 
     testImplementation project(':corecomponent:androidtestcomponent')
