@@ -7,8 +7,6 @@ import androidx.navigation.findNavController
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import coil.api.load
 import coil.transform.CircleCropTransformation
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
 import com.xwray.groupie.Item
 import com.xwray.groupie.databinding.BindableItem
 import io.github.droidkaigi.confsched2020.contributor.R
@@ -18,8 +16,8 @@ import io.github.droidkaigi.confsched2020.model.Contributor
 import io.github.droidkaigi.confsched2020.ui.ProfilePlaceholderCreator
 import io.github.droidkaigi.confsched2020.util.lazyWithParam
 
-class ContributorItem @AssistedInject constructor(
-    @Assisted private val contributor: Contributor,
+class ContributorItem(
+    private val contributor: Contributor,
     private val lifecycleOwnerLiveData: LiveData<LifecycleOwner>
 ) : BindableItem<ItemContributorBinding>(contributor.id.toLong()) {
 
@@ -48,10 +46,5 @@ class ContributorItem @AssistedInject constructor(
 
     override fun hasSameContentAs(other: Item<*>): Boolean {
         return contributor == (other as? ContributorItem)?.contributor
-    }
-
-    @AssistedInject.Factory
-    interface Factory {
-        fun create(contributor: Contributor): ContributorItem
     }
 }

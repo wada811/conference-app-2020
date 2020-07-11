@@ -1,8 +1,10 @@
 package io.github.droidkaigi.confsched2020.contributor.ui.viewmodel
 
 import com.jraska.livedata.test
+import io.github.droidkaigi.confsched2020.data.repository.di.RepositoryModule
 import io.github.droidkaigi.confsched2020.model.repository.ContributorRepository
 import io.github.droidkaigi.confsched2020.widget.component.MockkRule
+import io.github.droidkaigi.confsched2020.widget.component.TestApplication
 import io.github.droidkaigi.confsched2020.widget.component.ViewModelTestRule
 import io.kotlintest.shouldBe
 import io.mockk.coEvery
@@ -17,12 +19,15 @@ class ContributorsViewModelTest {
     @get:Rule
     val mockkRule = MockkRule(this)
     @MockK(relaxed = true)
+    lateinit var repositoryModule: RepositoryModule
+    @MockK(relaxed = true)
     lateinit var contributorRepository: ContributorRepository
 
     @Test
     fun load() {
+        coEvery { repositoryModule.contributorRepository } returns contributorRepository
         coEvery { contributorRepository.contributorContents() } returns flowOf(Dummies.contributors)
-        val contributorsViewModel = ContributorsViewModel(contributorRepository)
+        val contributorsViewModel = ContributorsViewModel(TestApplication(repositoryModule))
 
         val testObserver = contributorsViewModel
             .uiModel

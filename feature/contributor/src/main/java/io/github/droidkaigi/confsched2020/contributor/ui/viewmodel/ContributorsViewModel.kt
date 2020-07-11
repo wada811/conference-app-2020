@@ -1,11 +1,14 @@
 package io.github.droidkaigi.confsched2020.contributor.ui.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
+import com.wada811.dependencyproperty.dependency
+import io.github.droidkaigi.confsched2020.data.repository.di.RepositoryModule
 import io.github.droidkaigi.confsched2020.ext.combine
 import io.github.droidkaigi.confsched2020.ext.dropWhileIndexed
 import io.github.droidkaigi.confsched2020.ext.toAppError
@@ -16,12 +19,11 @@ import io.github.droidkaigi.confsched2020.model.LoadState
 import io.github.droidkaigi.confsched2020.model.LoadingState
 import io.github.droidkaigi.confsched2020.model.repository.ContributorRepository
 import kotlinx.coroutines.launch
-import java.lang.Exception
-import javax.inject.Inject
 
-class ContributorsViewModel @Inject constructor(
-    private val contributorRepository: ContributorRepository
-) : ViewModel() {
+class ContributorsViewModel(
+    application: Application
+) : AndroidViewModel(application) {
+    private val contributorRepository by dependency<RepositoryModule, ContributorRepository> { it.contributorRepository }
 
     data class UiModel(
         val isLoading: Boolean,
