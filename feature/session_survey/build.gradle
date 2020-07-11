@@ -26,13 +26,7 @@ dependencies {
     implementation Dep.AndroidX.emoji
     implementation Dep.AndroidX.design
 
-
-    implementation Dep.Dagger.core
-    implementation Dep.Dagger.androidSupport
-    kapt Dep.Dagger.compiler
-    kapt Dep.Dagger.androidProcessor
-    compileOnly Dep.Dagger.assistedInjectAnnotations
-    kapt Dep.Dagger.assistedInjectProcessor
+    implementation Dep.DependencyProperty.dependencyProperty
 
     implementation Dep.Groupie.groupie
     implementation Dep.Groupie.databinding
