@@ -117,17 +117,6 @@ object Dep {
         val core = "com.google.android.play:core:1.6.4"
     }
 
-    object Dagger {
-        val core = "com.google.dagger:dagger:2.26"
-        val compiler = "com.google.dagger:dagger-compiler:2.26"
-        val androidSupport = "com.google.dagger:dagger-android-support:2.26"
-        val android = "com.google.dagger:dagger-android:2.26"
-        val androidProcessor = "com.google.dagger:dagger-android-processor:2.26"
-        val assistedInjectAnnotations =
-            "com.squareup.inject:assisted-inject-annotations-dagger2:0.5.2"
-        val assistedInjectProcessor = "com.squareup.inject:assisted-inject-processor-dagger2:0.5.2"
-    }
-
     object Ktor {
         val clientCommon = "io.ktor:ktor-client-core:1.3.1"
         val clientAndroid = "io.ktor:ktor-client-okhttp:1.3.1"
