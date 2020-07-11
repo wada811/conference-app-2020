@@ -1,8 +1,10 @@
 package io.github.droidkaigi.confsched2020.sponsor.ui.viewmodel
 
 import com.jraska.livedata.test
+import io.github.droidkaigi.confsched2020.data.repository.di.RepositoryModule
 import io.github.droidkaigi.confsched2020.model.repository.SponsorRepository
 import io.github.droidkaigi.confsched2020.widget.component.MockkRule
+import io.github.droidkaigi.confsched2020.widget.component.TestApplication
 import io.github.droidkaigi.confsched2020.widget.component.ViewModelTestRule
 import io.kotlintest.shouldBe
 import io.mockk.coEvery
@@ -14,12 +16,14 @@ import org.junit.Test
 class SponsorsViewModelTest {
     @get:Rule val viewModelTestRule = ViewModelTestRule()
     @get:Rule val mockkRule = MockkRule(this)
+    @MockK(relaxed = true) lateinit var repositoryModule: RepositoryModule
     @MockK(relaxed = true) lateinit var sponsorRepository: SponsorRepository
 
     @Test
     fun load() {
+        coEvery { repositoryModule.sponsorRepository } returns sponsorRepository
         coEvery { sponsorRepository.sponsors() } returns flowOf(Dummies.sponsors)
-        val sponsorsViewModel = SponsorsViewModel(sponsorRepository)
+        val sponsorsViewModel = SponsorsViewModel(TestApplication(repositoryModule))
 
         val testObserver = sponsorsViewModel
             .uiModel

@@ -4,21 +4,15 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.GridLayoutManager
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Item
 import com.xwray.groupie.Section
 import com.xwray.groupie.databinding.GroupieViewHolder
-import dagger.Module
-import dagger.Provides
 import dev.chrisbanes.insetter.doOnApplyWindowInsets
-import io.github.droidkaigi.confsched2020.di.Injectable
-import io.github.droidkaigi.confsched2020.di.PageScope
-import io.github.droidkaigi.confsched2020.ext.assistedActivityViewModels
-import io.github.droidkaigi.confsched2020.ext.assistedViewModels
 import io.github.droidkaigi.confsched2020.ext.isShow
 import io.github.droidkaigi.confsched2020.model.Sponsor
 import io.github.droidkaigi.confsched2020.model.SponsorCategory
@@ -30,25 +24,11 @@ import io.github.droidkaigi.confsched2020.sponsor.ui.item.LargeSponsorItem
 import io.github.droidkaigi.confsched2020.sponsor.ui.item.SponsorItem
 import io.github.droidkaigi.confsched2020.sponsor.ui.viewmodel.SponsorsViewModel
 import io.github.droidkaigi.confsched2020.system.ui.viewmodel.SystemViewModel
-import javax.inject.Inject
-import javax.inject.Provider
 
-class SponsorsFragment : Fragment(R.layout.fragment_sponsors), Injectable {
+class SponsorsFragment : Fragment(R.layout.fragment_sponsors) {
 
-    @Inject lateinit var sponsorsModelFactory: Provider<SponsorsViewModel>
-    private val sponsorsViewModel by assistedViewModels {
-        sponsorsModelFactory.get()
-    }
-    @Inject lateinit var systemViewModelProvider: Provider<SystemViewModel>
-    private val systemViewModel: SystemViewModel by assistedActivityViewModels {
-        systemViewModelProvider.get()
-    }
-
-    @Inject lateinit var largeSponsorItemFactory: LargeSponsorItem.Factory
-
-    @Inject lateinit var sponsorItemFactory: SponsorItem.Factory
-
-    @Inject lateinit var categoryHeaderItemFactory: CategoryHeaderItem.Factory
+    private val sponsorsViewModel: SponsorsViewModel by viewModels()
+    private val systemViewModel: SystemViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -86,7 +66,7 @@ class SponsorsFragment : Fragment(R.layout.fragment_sponsors), Injectable {
     }
 
     private fun SponsorCategory.toSection() = Section().apply {
-        setHeader(categoryHeaderItemFactory.create(category))
+        setHeader(CategoryHeaderItem(category))
         addAll(
             sponsors.map { sponsor ->
                 sponsor.toItem(category)
@@ -104,23 +84,11 @@ class SponsorsFragment : Fragment(R.layout.fragment_sponsors), Injectable {
         return when (category) {
             SponsorCategory.Category.PLATINUM,
             SponsorCategory.Category.GOLD -> {
-                largeSponsorItemFactory.create(this, spanSize)
+                LargeSponsorItem(this, spanSize, viewLifecycleOwnerLiveData)
             }
             else -> {
-                sponsorItemFactory.create(this, spanSize)
+                SponsorItem(this, spanSize, viewLifecycleOwnerLiveData)
             }
-        }
-    }
-}
-
-@Module
-abstract class SponsorsFragmentModule {
-    companion object {
-        @PageScope
-        @Provides fun providesLifecycleOwnerLiveData(
-            sponsorsFragment: SponsorsFragment
-        ): LiveData<LifecycleOwner> {
-            return sponsorsFragment.viewLifecycleOwnerLiveData
         }
     }
 }

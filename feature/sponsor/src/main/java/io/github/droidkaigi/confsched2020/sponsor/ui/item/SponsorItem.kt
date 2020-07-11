@@ -4,8 +4,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.navigation.findNavController
 import coil.api.load
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
 import com.xwray.groupie.Item
 import com.xwray.groupie.databinding.BindableItem
 import io.github.droidkaigi.confsched2020.model.Sponsor
@@ -13,9 +11,9 @@ import io.github.droidkaigi.confsched2020.sponsor.R
 import io.github.droidkaigi.confsched2020.sponsor.databinding.ItemSponsorBinding
 import io.github.droidkaigi.confsched2020.sponsor.ui.SponsorsFragmentDirections.Companion.actionSponsorsToChrome
 
-class SponsorItem @AssistedInject constructor(
-    @Assisted private val sponsor: Sponsor,
-    @Assisted private val spanSize: Int,
+class SponsorItem(
+    private val sponsor: Sponsor,
+    private val spanSize: Int,
     private val lifecycleOwnerLiveData: LiveData<LifecycleOwner>
 ) : BindableItem<ItemSponsorBinding>(sponsor.id.toLong()) {
     override fun getLayout(): Int = R.layout.item_sponsor
@@ -36,13 +34,5 @@ class SponsorItem @AssistedInject constructor(
 
     override fun getSpanSize(spanCount: Int, position: Int): Int {
         return spanSize
-    }
-
-    @AssistedInject.Factory
-    interface Factory {
-        fun create(
-            sponsor: Sponsor,
-            spanSize: Int
-        ): SponsorItem
     }
 }

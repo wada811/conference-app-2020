@@ -1,9 +1,12 @@
 package io.github.droidkaigi.confsched2020.sponsor.ui.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.liveData
+import com.wada811.dependencyproperty.dependency
+import io.github.droidkaigi.confsched2020.data.repository.di.RepositoryModule
 import io.github.droidkaigi.confsched2020.ext.combine
 import io.github.droidkaigi.confsched2020.ext.toAppError
 import io.github.droidkaigi.confsched2020.ext.toLoadingState
@@ -11,11 +14,9 @@ import io.github.droidkaigi.confsched2020.model.AppError
 import io.github.droidkaigi.confsched2020.model.LoadState
 import io.github.droidkaigi.confsched2020.model.SponsorCategory
 import io.github.droidkaigi.confsched2020.model.repository.SponsorRepository
-import javax.inject.Inject
 
-class SponsorsViewModel @Inject constructor(
-    private val sponsorRepository: SponsorRepository
-) : ViewModel() {
+class SponsorsViewModel(application: Application) : AndroidViewModel(application) {
+    private val sponsorRepository by dependency<RepositoryModule, SponsorRepository> { it.sponsorRepository }
 
     data class UiModel(
         val isLoading: Boolean,
