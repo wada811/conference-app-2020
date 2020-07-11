@@ -15,8 +15,6 @@ import androidx.core.text.inSpans
 import androidx.core.view.doOnPreDraw
 import androidx.transition.TransitionManager
 import com.soywiz.klock.DateFormat
-import com.squareup.inject.assisted.Assisted
-import com.squareup.inject.assisted.AssistedInject
 import com.xwray.groupie.Item
 import com.xwray.groupie.databinding.BindableItem
 import io.github.droidkaigi.confsched2020.announcement.R
@@ -25,10 +23,10 @@ import io.github.droidkaigi.confsched2020.ext.getThemeColor
 import io.github.droidkaigi.confsched2020.model.Announcement
 import io.github.droidkaigi.confsched2020.model.defaultTimeZoneOffset
 
-class AnnouncementItem @AssistedInject constructor(
-    @Assisted val announcement: Announcement,
-    @Assisted var showEllipsis: Boolean,
-    @Assisted val expandListener: () -> Unit
+class AnnouncementItem(
+    val announcement: Announcement,
+    var showEllipsis: Boolean,
+    val expandListener: () -> Unit
 ) : BindableItem<ItemAnnouncementBinding>(announcement.id) {
 
     companion object {
@@ -119,14 +117,5 @@ class AnnouncementItem @AssistedInject constructor(
             },
             builderAction
         )
-    }
-
-    @AssistedInject.Factory
-    interface Factory {
-        fun create(
-            announcement: Announcement,
-            showEllipsis: Boolean,
-            expandListener: () -> Unit
-        ): AnnouncementItem
     }
 }

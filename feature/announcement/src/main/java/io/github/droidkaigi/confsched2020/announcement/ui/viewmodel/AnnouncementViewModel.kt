@@ -1,12 +1,14 @@
 package io.github.droidkaigi.confsched2020.announcement.ui.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
-import com.squareup.inject.assisted.AssistedInject
+import com.wada811.dependencyproperty.dependency
+import io.github.droidkaigi.confsched2020.data.repository.di.RepositoryModule
 import io.github.droidkaigi.confsched2020.ext.combine
 import io.github.droidkaigi.confsched2020.ext.dropWhileIndexed
 import io.github.droidkaigi.confsched2020.ext.toAppError
@@ -19,9 +21,8 @@ import io.github.droidkaigi.confsched2020.model.repository.AnnouncementRepositor
 import timber.log.Timber
 import timber.log.debug
 
-class AnnouncementViewModel @AssistedInject constructor(
-    private val announcementRepository: AnnouncementRepository
-) : ViewModel() {
+class AnnouncementViewModel(application: Application) : AndroidViewModel(application) {
+    private val announcementRepository by dependency<RepositoryModule, AnnouncementRepository> { it.announcementRepository }
 
     data class UiModel(
         val isLoading: Boolean,
@@ -80,10 +81,5 @@ class AnnouncementViewModel @AssistedInject constructor(
 
     fun expandItem(id: Long) {
         expandedItemIds.add(id)
-    }
-
-    @AssistedInject.Factory
-    interface Factory {
-        fun create(): AnnouncementViewModel
     }
 }

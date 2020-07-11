@@ -1,8 +1,10 @@
 package io.github.droidkaigi.confsched2020.announcement.ui.viewmodel
 
 import com.jraska.livedata.test
+import io.github.droidkaigi.confsched2020.data.repository.di.RepositoryModule
 import io.github.droidkaigi.confsched2020.model.repository.AnnouncementRepository
 import io.github.droidkaigi.confsched2020.widget.component.MockkRule
+import io.github.droidkaigi.confsched2020.widget.component.TestApplication
 import io.github.droidkaigi.confsched2020.widget.component.ViewModelTestRule
 import io.kotlintest.shouldBe
 import io.mockk.coEvery
@@ -14,15 +16,21 @@ import org.junit.Test
 class AnnouncementViewModelTest {
     @get:Rule
     val viewModelTestRule = ViewModelTestRule()
+
     @get:Rule
     val mockkRule = MockkRule(this)
+
+    @MockK(relaxed = true)
+    lateinit var repositoryModule: RepositoryModule
+
     @MockK(relaxed = true)
     lateinit var announcementRepository: AnnouncementRepository
 
     @Test
     fun load() {
+        coEvery { repositoryModule.announcementRepository } returns announcementRepository
         coEvery { announcementRepository.announcements() } returns flowOf(Dummies.announcements)
-        val announcementViewModel = AnnouncementViewModel(announcementRepository)
+        val announcementViewModel = AnnouncementViewModel(TestApplication(repositoryModule))
 
         val testObserver = announcementViewModel
             .uiModel
@@ -41,8 +49,9 @@ class AnnouncementViewModelTest {
 
     @Test
     fun expandItem() {
+        coEvery { repositoryModule.announcementRepository } returns announcementRepository
         coEvery { announcementRepository.announcements() } returns flowOf(Dummies.announcements)
-        val announcementViewModel = AnnouncementViewModel(announcementRepository)
+        val announcementViewModel = AnnouncementViewModel(TestApplication(repositoryModule))
 
         val testObserver = announcementViewModel
             .uiModel

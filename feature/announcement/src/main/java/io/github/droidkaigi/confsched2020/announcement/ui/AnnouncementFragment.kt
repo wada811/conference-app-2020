@@ -6,44 +6,24 @@ import android.view.View
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.RecyclerView
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.databinding.GroupieViewHolder
-import dagger.Module
-import dagger.Provides
 import dev.chrisbanes.insetter.doOnApplyWindowInsets
 import io.github.droidkaigi.confsched2020.announcement.R
 import io.github.droidkaigi.confsched2020.announcement.databinding.FragmentAnnouncementBinding
 import io.github.droidkaigi.confsched2020.announcement.ui.item.AnnouncementItem
 import io.github.droidkaigi.confsched2020.announcement.ui.viewmodel.AnnouncementViewModel
-import io.github.droidkaigi.confsched2020.di.Injectable
-import io.github.droidkaigi.confsched2020.di.PageScope
-import io.github.droidkaigi.confsched2020.ext.assistedActivityViewModels
-import io.github.droidkaigi.confsched2020.ext.assistedViewModels
 import io.github.droidkaigi.confsched2020.ext.isShow
 import io.github.droidkaigi.confsched2020.system.ui.viewmodel.SystemViewModel
-import javax.inject.Inject
-import javax.inject.Provider
 
-class AnnouncementFragment : Fragment(R.layout.fragment_announcement), Injectable {
+class AnnouncementFragment : Fragment(R.layout.fragment_announcement) {
 
-    @Inject
-    lateinit var announcementModelFactory: AnnouncementViewModel.Factory
-    private val announcementViewModel: AnnouncementViewModel by assistedViewModels {
-        announcementModelFactory.create()
-    }
-
-    @Inject
-    lateinit var systemViewModelProvider: Provider<SystemViewModel>
-    private val systemViewModel: SystemViewModel by assistedActivityViewModels {
-        systemViewModelProvider.get()
-    }
-
-    @Inject
-    lateinit var announcementItemFactory: AnnouncementItem.Factory
+    private val announcementViewModel: AnnouncementViewModel by viewModels()
+    private val systemViewModel: SystemViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -70,7 +50,7 @@ class AnnouncementFragment : Fragment(R.layout.fragment_announcement), Injectabl
             groupAdapter.update(
                 uiModel.announcements.map { announcement ->
                     val showEllipsis = !uiModel.expandedItemIds.contains(announcement.id)
-                    announcementItemFactory.create(
+                    AnnouncementItem(
                         announcement,
                         showEllipsis
                     ) { announcementViewModel.expandItem(announcement.id) }
@@ -94,21 +74,6 @@ class AnnouncementFragment : Fragment(R.layout.fragment_announcement), Injectabl
             val position = parent.getChildLayoutPosition(view)
             if (position > 0) {
                 outRect.top = offset.toInt()
-            }
-        }
-    }
-
-    @Module
-    abstract class AnnouncementFragmentModule {
-
-        companion object {
-
-            @PageScope
-            @Provides
-            fun providesLifecycleOwnerLiveData(
-                announcementFragment: AnnouncementFragment
-            ): LiveData<LifecycleOwner> {
-                return announcementFragment.viewLifecycleOwnerLiveData
             }
         }
     }
