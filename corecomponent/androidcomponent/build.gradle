@@ -23,7 +23,6 @@ dependencies {
 
     api Dep.Insetter.insetter
 
-    implementation Dep.Dagger.androidSupport
     api Dep.Kotlin.coroutines
 
     api Dep.AndroidX.Navigation.runtimeKtx
@@ -47,8 +46,7 @@ dependencies {
     implementation Dep.AndroidX.Work.runtimeKtx
     implementation Dep.liveEvent
 
-    implementation Dep.Dagger.core
-    implementation Dep.Dagger.androidSupport
+    implementation Dep.DependencyProperty.dependencyProperty
 
     implementation Dep.Groupie.groupie
 
