@@ -15,9 +15,8 @@ import io.github.droidkaigi.confsched2020.model.AppError
 import io.github.droidkaigi.confsched2020.model.AppError.ExternalIntegrationError.NoCalendarIntegrationFoundException
 import timber.log.Timber
 import timber.log.debug
-import javax.inject.Inject
 
-class SystemViewModel @Inject constructor() : ViewModel() {
+class SystemViewModel : ViewModel() {
     private val mutableErrorLiveData = MutableLiveData<AppError?>()
     val errorLiveData: LiveData<AppError> get() = mutableErrorLiveData.toNonNullSingleEvent()
     fun onError(error: AppError) {
