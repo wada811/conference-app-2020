@@ -28,13 +28,6 @@ dependencies {
 
     implementation Dep.PlayServices.licensesPlugin
 
-    implementation Dep.Dagger.core
-    implementation Dep.Dagger.androidSupport
-    kapt Dep.Dagger.compiler
-    kapt Dep.Dagger.androidProcessor
-    compileOnly Dep.Dagger.assistedInjectAnnotations
-    kapt Dep.Dagger.assistedInjectProcessor
-
     implementation Dep.Groupie.groupie
     implementation Dep.Groupie.databinding
 

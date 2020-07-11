@@ -1,10 +1,9 @@
 package io.github.droidkaigi.confsched2020.about.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.squareup.inject.assisted.AssistedInject
 import io.github.droidkaigi.confsched2020.model.AppError
 
-class AboutViewModel @AssistedInject constructor() : ViewModel() {
+class AboutViewModel : ViewModel() {
 
     data class UiModel(
         val isLoading: Boolean,
@@ -13,10 +12,5 @@ class AboutViewModel @AssistedInject constructor() : ViewModel() {
         companion object {
             val EMPTY = UiModel(false, null)
         }
-    }
-
-    @AssistedInject.Factory
-    interface Factory {
-        fun create(): AboutViewModel
     }
 }

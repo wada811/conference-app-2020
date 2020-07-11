@@ -4,14 +4,12 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
-import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.databinding.GroupieViewHolder
-import dagger.Module
-import dagger.Provides
 import dev.chrisbanes.insetter.doOnApplyWindowInsets
 import io.github.droidkaigi.confsched2020.about.R
 import io.github.droidkaigi.confsched2020.about.databinding.FragmentAboutBinding
@@ -22,15 +20,9 @@ import io.github.droidkaigi.confsched2020.about.ui.item.AboutItem
 import io.github.droidkaigi.confsched2020.about.ui.item.AboutLaunchItem
 import io.github.droidkaigi.confsched2020.about.ui.item.AboutTextItem
 import io.github.droidkaigi.confsched2020.about.ui.viewmodel.AboutViewModel
-import io.github.droidkaigi.confsched2020.di.Injectable
-import io.github.droidkaigi.confsched2020.di.PageScope
-import io.github.droidkaigi.confsched2020.ext.assistedActivityViewModels
-import io.github.droidkaigi.confsched2020.ext.assistedViewModels
 import io.github.droidkaigi.confsched2020.system.ui.viewmodel.SystemViewModel
-import javax.inject.Inject
-import javax.inject.Provider
 
-class AboutFragment : Fragment(R.layout.fragment_about), Injectable {
+class AboutFragment : Fragment(R.layout.fragment_about) {
 
     companion object {
         const val TWITTER_URL = "https://twitter.com/DroidKaigi"
@@ -39,26 +31,8 @@ class AboutFragment : Fragment(R.layout.fragment_about), Injectable {
         const val PRIVACY_URL = "http://www.association.droidkaigi.jp/privacy.html"
     }
 
-    @Inject
-    lateinit var aboutModelFactory: AboutViewModel.Factory
-    private val aboutViewModel: AboutViewModel by assistedViewModels {
-        aboutModelFactory.create()
-    }
-
-    @Inject
-    lateinit var systemViewModelProvider: Provider<SystemViewModel>
-    private val systemViewModel: SystemViewModel by assistedActivityViewModels {
-        systemViewModelProvider.get()
-    }
-
-    @Inject
-    lateinit var aboutItemFactory: AboutItem.Factory
-    @Inject
-    lateinit var aboutHeaderItemFactory: AboutHeaderItem.Factory
-    @Inject
-    lateinit var aboutTextItemFactory: AboutTextItem.Factory
-    @Inject
-    lateinit var aboutLaunchItemFactory: AboutLaunchItem.Factory
+    private val aboutViewModel: AboutViewModel by viewModels()
+    private val systemViewModel: SystemViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -77,7 +51,7 @@ class AboutFragment : Fragment(R.layout.fragment_about), Injectable {
 
         groupAdapter.update(
             listOf(
-                aboutHeaderItemFactory.create(
+                AboutHeaderItem(
                     onClickTwitter = {
                         findNavController().navigate(actionAboutToChrome(TWITTER_URL))
                     },
@@ -88,22 +62,22 @@ class AboutFragment : Fragment(R.layout.fragment_about), Injectable {
                         findNavController().navigate(actionAboutToChrome(MEDIUM_URL))
                     }
                 ),
-                aboutLaunchItemFactory.create(
+                AboutLaunchItem(
                     getString(R.string.about_item_access)
                 ) {
                     systemViewModel.navigateToAccessMap(requireActivity())
                 },
-                aboutItemFactory.create(
+                AboutItem(
                     getString(R.string.about_item_staff)
                 ) {
                     findNavController().navigate(actionAboutToStaffs())
                 },
-                aboutItemFactory.create(
+                AboutItem(
                     getString(R.string.about_item_privacy_policy)
                 ) {
                     findNavController().navigate(actionAboutToChrome(PRIVACY_URL))
                 },
-                aboutItemFactory.create(
+                AboutItem(
                     getString(R.string.about_item_licence)
                 ) {
                     OssLicensesMenuActivity.setActivityTitle(
@@ -111,27 +85,12 @@ class AboutFragment : Fragment(R.layout.fragment_about), Injectable {
                     )
                     findNavController().navigate(R.id.licenses)
                 },
-                aboutTextItemFactory.create(
+                AboutTextItem(
                     getString(R.string.about_item_app_version),
                     "1.2.0" // TODO get app version code
                 )
             )
         )
         binding.progressBar.hide()
-    }
-}
-
-@Module
-abstract class AboutFragmentModule {
-
-    companion object {
-
-        @PageScope
-        @Provides
-        fun providesLifecycleOwnerLiveData(
-            aboutFragment: AboutFragment
-        ): LiveData<LifecycleOwner> {
-            return aboutFragment.viewLifecycleOwnerLiveData
-        }
     }
 }
