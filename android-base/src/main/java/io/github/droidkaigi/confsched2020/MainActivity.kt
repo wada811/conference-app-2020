@@ -15,6 +15,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
+import androidx.activity.viewModels
 import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
@@ -30,7 +31,6 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.observe
 import androidx.navigation.NavController
@@ -42,66 +42,29 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.play.core.splitcompat.SplitCompat
-import dagger.Binds
-import dagger.Module
-import dagger.android.AndroidInjector
-import dagger.android.ContributesAndroidInjector
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.HasAndroidInjector
+import com.wada811.dependencyproperty.dependency
 import dev.chrisbanes.insetter.doOnApplyWindowInsets
-import io.github.droidkaigi.confsched2020.about.ui.AboutFragment
-import io.github.droidkaigi.confsched2020.about.ui.AboutFragmentModule
-import io.github.droidkaigi.confsched2020.about.ui.di.AboutAssistedInjectModule
-import io.github.droidkaigi.confsched2020.announcement.ui.AnnouncementFragment
-import io.github.droidkaigi.confsched2020.announcement.ui.AnnouncementFragment.AnnouncementFragmentModule
-import io.github.droidkaigi.confsched2020.announcement.ui.di.AnnouncementAssistedInjectModule
+import io.github.droidkaigi.confsched2020.data.repository.di.RepositoryModule
 import io.github.droidkaigi.confsched2020.databinding.ActivityMainBinding
-import io.github.droidkaigi.confsched2020.di.PageScope
-import io.github.droidkaigi.confsched2020.ext.assistedActivityViewModels
 import io.github.droidkaigi.confsched2020.ext.getThemeColor
 import io.github.droidkaigi.confsched2020.ext.stringRes
-import io.github.droidkaigi.confsched2020.floormap.ui.FloorMapFragment
-import io.github.droidkaigi.confsched2020.floormap.ui.FloorMapFragment.FloorMapFragmentModule
-import io.github.droidkaigi.confsched2020.floormap.ui.di.FloorMapInjectModule
 import io.github.droidkaigi.confsched2020.model.repository.SessionRepository
-import io.github.droidkaigi.confsched2020.session.ui.MainSessionsFragment
-import io.github.droidkaigi.confsched2020.session.ui.MainSessionsFragmentModule
-import io.github.droidkaigi.confsched2020.session.ui.SearchSessionsFragment
-import io.github.droidkaigi.confsched2020.session.ui.SearchSessionsFragmentModule
-import io.github.droidkaigi.confsched2020.session.ui.SessionDetailFragment
-import io.github.droidkaigi.confsched2020.session.ui.SessionDetailFragmentModule
-import io.github.droidkaigi.confsched2020.session.ui.SpeakerFragment
-import io.github.droidkaigi.confsched2020.session.ui.SpeakerFragmentModule
-import io.github.droidkaigi.confsched2020.session.ui.di.SessionAssistedInjectModule
-import io.github.droidkaigi.confsched2020.session_survey.ui.SessionSurveyFragment
-import io.github.droidkaigi.confsched2020.session_survey.ui.SessionSurveyFragmentModule
-import io.github.droidkaigi.confsched2020.session_survey.ui.di.SessionSurveyAssistedInjectModule
-import io.github.droidkaigi.confsched2020.sponsor.ui.SponsorsFragment
-import io.github.droidkaigi.confsched2020.sponsor.ui.SponsorsFragmentModule
-import io.github.droidkaigi.confsched2020.sponsor.ui.di.SponsorsAssistedInjectModule
 import io.github.droidkaigi.confsched2020.system.ui.viewmodel.SystemViewModel
 import io.github.droidkaigi.confsched2020.ui.PageConfiguration
 import io.github.droidkaigi.confsched2020.ui.widget.SystemUiManager
 import io.github.droidkaigi.confsched2020.widget.component.NavigationDirections.Companion.actionGlobalToChrome
 import timber.log.Timber
 import timber.log.warn
-import javax.inject.Inject
-import javax.inject.Provider
 
-class MainActivity : AppCompatActivity(), HasAndroidInjector {
+class MainActivity : AppCompatActivity() {
     private val binding: ActivityMainBinding by lazy {
         DataBindingUtil.setContentView<ActivityMainBinding>(
             this,
             R.layout.activity_main
         )
     }
-    @Inject
-    lateinit var systemViewModelProvider: Provider<SystemViewModel>
-    private val systemViewModel: SystemViewModel by assistedActivityViewModels {
-        systemViewModelProvider.get()
-    }
-    @Inject
-    lateinit var sessionRepository: SessionRepository
+    private val systemViewModel: SystemViewModel by viewModels()
+    private val sessionRepository by dependency<RepositoryModule, SessionRepository> { it.sessionRepository }
     private val navController: NavController by lazy {
         Navigation.findNavController(this, R.id.root_nav_host_fragment)
     }
@@ -109,11 +72,6 @@ class MainActivity : AppCompatActivity(), HasAndroidInjector {
     private val statusBarColors: SystemUiManager by lazy {
         SystemUiManager(this)
     }
-
-    @Inject
-    lateinit var androidInjector: DispatchingAndroidInjector<Any>
-
-    override fun androidInjector(): AndroidInjector<Any> = androidInjector
 
     override fun attachBaseContext(newBase: Context?) {
         super.attachBaseContext(newBase)
@@ -357,71 +315,5 @@ class MainActivity : AppCompatActivity(), HasAndroidInjector {
     companion object {
         const val ENTIRE_SURVEY =
             "https://docs.google.com/forms/d/e/1FAIpQLSfQHIwT0lf-20tx5xgUFSm7PPy_EjD5lI8SHuxV3DHN4D9pkA/viewform" // ktlint-disable max-line-length
-    }
-}
-
-@Module
-abstract class MainActivityModule {
-    @Binds
-    abstract fun providesActivity(mainActivity: MainActivity): FragmentActivity
-
-    @PageScope
-    @ContributesAndroidInjector(
-        modules = [MainSessionsFragmentModule::class, SessionAssistedInjectModule::class]
-    )
-    abstract fun contributeSessionsFragment(): MainSessionsFragment
-
-    @PageScope
-    @ContributesAndroidInjector(
-        modules = [SessionDetailFragmentModule::class, SessionAssistedInjectModule::class]
-    )
-    abstract fun contributeSessionDetailFragment(): SessionDetailFragment
-
-    @PageScope
-    @ContributesAndroidInjector(
-        modules = [SearchSessionsFragmentModule::class, SessionAssistedInjectModule::class]
-    )
-    abstract fun contributeSearchSessionsFragment(): SearchSessionsFragment
-
-    @PageScope
-    @ContributesAndroidInjector(
-        modules = [SpeakerFragmentModule::class, SessionAssistedInjectModule::class]
-    )
-    abstract fun contributeSpeakerFragment(): SpeakerFragment
-
-    @PageScope
-    @ContributesAndroidInjector(
-        modules = [SponsorsFragmentModule::class, SponsorsAssistedInjectModule::class]
-    )
-    abstract fun contributeSponsorsFragment(): SponsorsFragment
-
-    @PageScope
-    @ContributesAndroidInjector(
-        modules = [AnnouncementFragmentModule::class, AnnouncementAssistedInjectModule::class]
-    )
-    abstract fun contributeAnnouncementFragment(): AnnouncementFragment
-
-    @PageScope
-    @ContributesAndroidInjector(
-        modules = [AboutFragmentModule::class, AboutAssistedInjectModule::class]
-    )
-    abstract fun contributeAboutFragment(): AboutFragment
-
-    @PageScope
-    @ContributesAndroidInjector(
-        modules = [FloorMapFragmentModule::class, FloorMapInjectModule::class]
-    )
-    abstract fun contributeFloorMapFragment(): FloorMapFragment
-
-    @PageScope
-    @ContributesAndroidInjector(
-        modules = [SessionSurveyFragmentModule::class, SessionSurveyAssistedInjectModule::class]
-    )
-    abstract fun contributeSessionSurveyFragment(): SessionSurveyFragment
-
-    @Module
-    abstract class MainActivityBuilder {
-        @ContributesAndroidInjector(modules = [MainActivityModule::class])
-        abstract fun contributeMainActivity(): MainActivity
     }
 }

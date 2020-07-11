@@ -1,31 +1,42 @@
 package io.github.droidkaigi.confsched2020
 
+import android.app.Application
 import android.content.Context
 import com.google.android.play.core.splitcompat.SplitCompat
-import dagger.android.AndroidInjector
-import dagger.android.DaggerApplication
-import io.github.droidkaigi.confsched2020.di.AppComponent
-import io.github.droidkaigi.confsched2020.di.AppComponentHolder
-import io.github.droidkaigi.confsched2020.di.createAppComponent
+import com.wada811.dependencyproperty.DependencyContext
+import com.wada811.dependencyproperty.DependencyModules
+import io.github.droidkaigi.confsched2020.data.repository.di.RepositoryModule
 import io.github.droidkaigi.confsched2020.initializer.AppInitializers
-import javax.inject.Inject
+import io.github.droidkaigi.confsched2020.initializer.CoilInitializer
+import io.github.droidkaigi.confsched2020.initializer.EmojiInitializer
+import io.github.droidkaigi.confsched2020.initializer.FirebaseMessagingInitializer
+import io.github.droidkaigi.confsched2020.initializer.FirestoreInitializer
+import io.github.droidkaigi.confsched2020.initializer.ThemeInitializer
+import io.github.droidkaigi.confsched2020.initializer.TimberInitializer
+import io.github.droidkaigi.confsched2020.session.di.SessionModule
 
-open class App : DaggerApplication(), AppComponentHolder {
-
-    override val appComponent: AppComponent by lazy {
-        createAppComponent()
-    }
+open class App : Application(), DependencyContext {
+    @Suppress("LeakingThis")
+    override val dependencyModules: DependencyModules by dependencyModules(
+        RepositoryModule(this),
+        SessionModule(this)
+    )
 
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
         SplitCompat.install(this)
     }
 
-    override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
-        return appComponent
+    private val initializers: AppInitializers by lazy {
+        AppInitializers(
+            CoilInitializer(),
+            EmojiInitializer(),
+            FirebaseMessagingInitializer(),
+            FirestoreInitializer(),
+            ThemeInitializer(),
+            TimberInitializer()
+        )
     }
-
-    @Inject lateinit var initializers: AppInitializers
 
     override fun onCreate() {
         super.onCreate()

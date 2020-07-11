@@ -5,9 +5,8 @@ import androidx.core.provider.FontRequest
 import androidx.emoji.text.EmojiCompat
 import androidx.emoji.text.FontRequestEmojiCompatConfig
 import io.github.droidkaigi.confsched2020.R
-import javax.inject.Inject
 
-class EmojiInitializer @Inject constructor() : AppInitializer {
+class EmojiInitializer : AppInitializer {
     override fun initialize(application: Application) {
         val fontRequest = FontRequest(
             "com.google.android.gms.fonts",

@@ -118,13 +118,7 @@ dependencies {
     implementation(Dep.Firebase.analytics)
     implementation(Dep.AndroidX.emoji)
 
-    implementation(Dep.Dagger.core)
-    implementation(Dep.Dagger.androidSupport)
-    implementation(Dep.Dagger.android)
-    kapt(Dep.Dagger.compiler)
-    kapt(Dep.Dagger.androidProcessor)
-    compileOnly(Dep.Dagger.assistedInjectAnnotations)
-    kapt(Dep.Dagger.assistedInjectProcessor)
+    implementation(Dep.DependencyProperty.dependencyProperty)
     implementation(Dep.Groupie.groupie)
 
     testImplementation(Dep.Test.junit)
