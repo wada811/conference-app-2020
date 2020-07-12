@@ -1,7 +1,5 @@
 import dependencies.Dep
 
-def ideaActive = System.getProperty("idea.active") == "true"
-
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-multiplatform'
 apply plugin: 'kotlin-kapt'
@@ -17,29 +15,6 @@ android.libraryVariants.all {
 
 kotlin {
     android("android")
-    iosArm64("iosArm64") {
-        binaries {
-            framework {
-                freeCompilerArgs += "-Xobjc-generics"
-            }
-        }
-    }
-    iosX64("iosX64") {
-        binaries {
-            framework {
-                freeCompilerArgs += "-Xobjc-generics"
-            }
-        }
-    }
-    if (ideaActive) {
-        iosX64("ios") {
-            binaries {
-                framework {
-                    freeCompilerArgs += "-Xobjc-generics"
-                }
-            }
-        }
-    }
     sourceSets {
         commonMain.dependencies {
             implementation Dep.Kotlin.stdlibCommon
@@ -68,42 +43,6 @@ kotlin {
             dependencies {
                 implementation Dep.Test.junit
                 implementation Dep.Test.slf4j
-            }
-        }
-        iOSMain {
-            final String mode = project.findProperty("XCODE_CONFIGURATION")?.toUpperCase() ?: 'DEBUG'
-            if (mode == "RELEASE") {
-                kotlin.srcDirs += "src/iosMain/kotlinRelease"
-            } else {
-                kotlin.srcDirs += "src/iosMain/kotlinDebug"
-            }
-            dependsOn commonMain
-            dependencies {
-                implementation Dep.Kotlin.coroutinesNative
-                implementation Dep.Ktor.clientIos
-                implementation Dep.Ktor.jsonNative
-                implementation Dep.Ktor.serializationNative
-                implementation Dep.Kotlin.serializationNative
-            }
-        }
-        configure(iosX64Main) {
-            dependsOn iOSMain
-            dependencies {
-                implementation Dep.Kotlin.coroutinesIosX64
-                implementation Dep.Ktor.clientIosX64
-                implementation Dep.Ktor.jsonIosIosX64
-                implementation Dep.Ktor.serializationIosX64
-                implementation Dep.Kotlin.serializationIosX64
-            }
-        }
-        configure(iosArm64Main) {
-            dependsOn iOSMain
-            dependencies {
-                implementation Dep.Kotlin.coroutinesIosArm64
-                implementation Dep.Ktor.clientIosArm64
-                implementation Dep.Ktor.jsonIosArm64
-                implementation Dep.Ktor.serializationIosArm64
-                implementation Dep.Kotlin.serializationIosArm64
             }
         }
     }

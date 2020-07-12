@@ -25,7 +25,3 @@ include(":android-base",
 enableFeaturePreview("GRADLE_METADATA")
 
 rootProject.name="conference-app-2020"
-
-if (System.getenv("BUILD_IOS") == "true") {
-  include(":ioscombined")
-}

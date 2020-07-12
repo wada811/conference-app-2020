@@ -85,10 +85,6 @@ object Dep {
         val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.3"
         val coroutinesNative =
             "org.jetbrains.kotlinx:kotlinx-coroutines-core-native:1.3.3"
-        val coroutinesIosX64 =
-            "org.jetbrains.kotlinx:kotlinx-coroutines-core-iosx64:1.3.3"
-        val coroutinesIosArm64 =
-            "org.jetbrains.kotlinx:kotlinx-coroutines-core-iosarm64:1.3.3"
         val androidCoroutinesDispatcher =
             "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.3"
         val coroutinesReactive =
@@ -101,10 +97,6 @@ object Dep {
             "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.14.0"
         val serializationNative =
             "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:0.14.0"
-        val serializationIosX64 =
-            "org.jetbrains.kotlinx:kotlinx-serialization-runtime-iosx64:0.14.0"
-        val serializationIosArm64 =
-            "org.jetbrains.kotlinx:kotlinx-serialization-runtime-iosarm64:0.14.0"
     }
 
     object Firebase {
@@ -139,19 +131,12 @@ object Dep {
     object Ktor {
         val clientCommon = "io.ktor:ktor-client-core:1.3.1"
         val clientAndroid = "io.ktor:ktor-client-okhttp:1.3.1"
-        val clientIos = "io.ktor:ktor-client-ios:1.3.1"
-        val clientIosArm64 = "io.ktor:ktor-client-ios-iosarm64:1.3.1"
-        val clientIosX64 = "io.ktor:ktor-client-ios-iosx64:1.3.1"
         val jsonCommon = "io.ktor:ktor-client-json:1.3.1"
         val jsonJvm = "io.ktor:ktor-client-json-jvm:1.3.1"
         val jsonNative = "io.ktor:ktor-client-json-native:1.3.1"
-        val jsonIosArm64 = "io.ktor:ktor-client-json-iosarm64:1.3.1"
-        val jsonIosIosX64 = "io.ktor:ktor-client-json-iosx64:1.3.1"
         val serializationCommon = "io.ktor:ktor-client-serialization:1.3.1"
         val serializationJvm = "io.ktor:ktor-client-serialization-jvm:1.3.1"
         val serializationNative = "io.ktor:ktor-client-serialization-native:1.3.1"
-        val serializationIosArm64 = "io.ktor:ktor-client-serialization-iosarm64:1.3.1"
-        val serializationIosX64 = "io.ktor:ktor-client-serialization-iosx64:1.3.1"
     }
 
     object OkHttp {

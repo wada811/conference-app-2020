@@ -10,29 +10,6 @@ apply from: rootProject.file('gradle/android.gradle')
 
 kotlin {
     android("android")
-    iosArm64("iosArm64") {
-        binaries {
-            framework {
-                freeCompilerArgs += "-Xobjc-generics"
-            }
-        }
-    }
-    iosX64("iosX64") {
-        binaries {
-            framework {
-                freeCompilerArgs += "-Xobjc-generics"
-            }
-        }
-    }
-    if (ideaActive) {
-        iosX64("ios") {
-            binaries {
-                framework {
-                    freeCompilerArgs += "-Xobjc-generics"
-                }
-            }
-        }
-    }
     sourceSets {
         commonMain.dependencies {
             implementation Dep.Kotlin.stdlibCommon

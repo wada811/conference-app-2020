@@ -1,3 +1,0 @@
---swiftversion 5.1
---disable redundantReturn, strongOutlets
---stripunusedargs closure-only

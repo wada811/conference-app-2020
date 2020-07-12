@@ -9,19 +9,6 @@ apply from: rootProject.file('gradle/android.gradle')
 kotlin {
     targets {
         fromPreset(presets.android, 'android')
-
-        def buildForDevice = project.findProperty("device")?.toBoolean() ?: false
-        def iosPreset = (buildForDevice) ? presets.iosArm64 : presets.iosX64
-        fromPreset(iosPreset, 'ios') {
-            binaries {
-                framework {
-                    // Disable bitcode embedding for the simulator build.
-                    if (!buildForDevice) {
-                        embedBitcode("disable")
-                    }
-                }
-            }
-        }
     }
     sourceSets {
         commonMain.dependencies {
