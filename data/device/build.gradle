@@ -21,6 +21,7 @@ kotlin {
             dependencies {
                 implementation Dep.Kotlin.stdlibJvm
                 implementation Dep.Kotlin.coroutines
+                implementation Dep.AndroidX.coreKtx
                 implementation Dep.DependencyProperty.dependencyProperty
                 implementation Dep.Timber.android
             }

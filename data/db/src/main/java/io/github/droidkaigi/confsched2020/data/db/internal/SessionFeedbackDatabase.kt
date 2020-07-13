@@ -9,7 +9,8 @@ import io.github.droidkaigi.confsched2020.data.db.internal.entity.SessionFeedbac
     entities = [
         (SessionFeedbackEntityImpl::class)
     ],
-    version = 1
+    version = 1,
+    exportSchema = false
 )
 internal abstract class SessionFeedbackDatabase : RoomDatabase() {
     abstract fun sessionFeedbackDao(): SessionFeedbackDao
