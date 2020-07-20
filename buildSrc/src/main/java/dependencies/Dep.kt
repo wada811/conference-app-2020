@@ -55,6 +55,7 @@ object Dep {
         val activityKtx = "androidx.activity:activity-ktx:1.1.0"
         val fragmentKtx = "androidx.fragment:fragment-ktx:1.2.2"
 
+        val lifecycleRuntimeKtx = "androidx.lifecycle:lifecycle-runtime-ktx:2.2.0"
         val lifecycleLiveData = "androidx.lifecycle:lifecycle-livedata:2.2.0"
         val liveDataCoreKtx = "androidx.lifecycle:lifecycle-livedata-core-ktx:2.2.0"
         val liveDataKtx = "androidx.lifecycle:lifecycle-livedata-ktx:2.2.0"
