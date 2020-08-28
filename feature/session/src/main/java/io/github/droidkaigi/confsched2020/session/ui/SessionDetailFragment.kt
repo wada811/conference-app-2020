@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.google.android.material.transition.Hold
 import com.wada811.dependencyproperty.DependencyModule
-import com.wada811.dependencyproperty.replaceModule
+import com.wada811.dependencyproperty.dependencyModules
 import com.xwray.groupie.Group
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.databinding.GroupieViewHolder
@@ -66,7 +66,7 @@ class SessionDetailFragment : Fragment(R.layout.fragment_session_detail) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         postponeEnterTransition()
-        replaceModule(SessionDetailFragmentArgsModule(navArgs))
+        dependencyModules.replaceModule(SessionDetailFragmentArgsModule(navArgs))
         val binding = FragmentSessionDetailBinding.bind(view)
         val adapter = GroupAdapter<GroupieViewHolder<*>>()
         binding.sessionDetailRecycler.adapter = adapter

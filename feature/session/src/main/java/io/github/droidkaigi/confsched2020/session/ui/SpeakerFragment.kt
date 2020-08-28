@@ -10,7 +10,7 @@ import androidx.lifecycle.observe
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.transition.MaterialContainerTransform
 import com.wada811.dependencyproperty.DependencyModule
-import com.wada811.dependencyproperty.replaceModule
+import com.wada811.dependencyproperty.dependencyModules
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.databinding.GroupieViewHolder
 import dev.chrisbanes.insetter.doOnApplyWindowInsets
@@ -37,7 +37,7 @@ class SpeakerFragment : Fragment(R.layout.fragment_speaker) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        replaceModule(SpeakerFragmentArgsModule(navArgs))
+        dependencyModules.replaceModule(SpeakerFragmentArgsModule(navArgs))
         val binding = FragmentSpeakerBinding.bind(view)
         binding.speakerRoot.transitionName = "${navArgs.speakerId}-${navArgs.transitionNameSuffix}"
         postponeEnterTransition()

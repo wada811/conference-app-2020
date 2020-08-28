@@ -7,7 +7,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.wada811.dependencyproperty.DependencyModule
-import com.wada811.dependencyproperty.addModule
+import com.wada811.dependencyproperty.dependencyModules
 import io.github.droidkaigi.confsched2020.session_survey.R
 import io.github.droidkaigi.confsched2020.session_survey.databinding.FragmentSessionSurveyBinding
 import io.github.droidkaigi.confsched2020.session_survey.ui.viewmodel.SessionSurveyViewModel
@@ -23,7 +23,7 @@ class SessionSurveyFragment : Fragment(R.layout.fragment_session_survey) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        addModule(SessionSurveyFragmentArgsModule(navArgs))
+        dependencyModules.addModule(SessionSurveyFragmentArgsModule(navArgs))
         val binding = FragmentSessionSurveyBinding.bind(view)
         binding.progressBar.show()
 

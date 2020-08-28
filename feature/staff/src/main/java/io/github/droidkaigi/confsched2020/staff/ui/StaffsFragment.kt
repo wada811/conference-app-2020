@@ -16,7 +16,7 @@ import com.dropbox.android.external.store4.MemoryPolicy
 import com.dropbox.android.external.store4.Store
 import com.dropbox.android.external.store4.StoreBuilder
 import com.wada811.dependencyproperty.DependencyModule
-import com.wada811.dependencyproperty.addModule
+import com.wada811.dependencyproperty.dependencyModules
 import com.wada811.dependencyproperty.dependency
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.databinding.GroupieViewHolder
@@ -49,7 +49,7 @@ class StaffsFragment : Fragment(R.layout.fragment_staffs) {
     private val staffDatabase by dependency<RepositoryModule, StaffDatabase> { it.dbModule.staffDatabase }
 
     override fun onAttach(context: Context) {
-        addModule(StaffModule(droidKaigiApi, staffDatabase))
+        dependencyModules.addModule(StaffModule(droidKaigiApi, staffDatabase))
         super.onAttach(context)
     }
 

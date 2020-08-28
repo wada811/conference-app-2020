@@ -202,6 +202,6 @@ object Dep {
     }
 
     object DependencyProperty {
-        val dependencyProperty = "com.github.wada811:DependencyProperty:3caa9ffde5"
+        val dependencyProperty = "com.github.wada811:DependencyProperty:985c483a4b"
     }
 }
